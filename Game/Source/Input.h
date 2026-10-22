@@ -55,24 +55,46 @@ public:
 
 	KeyState GetMouseButtonDown(int id) const
 	{
-		return mouseButtons[id - 1];
+		return mouse_buttons[id];
 	}
 
 	// Check if a certain window event happened
 	bool GetWindowEvent(EventWindow ev);
 
-	// Get mouse / axis position
-	void GetMousePosition(int &x, int &y);
-	void GetMouseMotion(int& x, int& y);
+	int GetMouseX() const
+	{
+		return mouse_x;
+	}
+
+	int GetMouseY() const
+	{
+		return mouse_y;
+	}
+
+	int GetMouseZ() const
+	{
+		return mouse_z;
+	}
+
+	int GetMouseXMotion() const
+	{
+		return mouse_x_motion;
+	}
+
+	int GetMouseYMotion() const
+	{
+		return mouse_y_motion;
+	}
 
 private:
 	bool windowEvents[WE_COUNT];
 	KeyState*	keyboard;
-	KeyState mouseButtons[NUM_MOUSE_BUTTONS];
-	int	mouseMotionX;
-	int mouseMotionY;
-	int mouseX;
-	int mouseY;
+	KeyState mouse_buttons[NUM_MOUSE_BUTTONS];
+	int mouse_x;
+	int mouse_y;
+	int mouse_z;
+	int mouse_x_motion;
+	int mouse_y_motion;
 };
 
 #endif // __INPUT_H__

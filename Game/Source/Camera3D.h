@@ -35,11 +35,17 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+	void CalculateViewMatrix();
+
+	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference);
+	void LookAt(const vec3& Spot);
+
 private:
 	SDL_Texture* img;
+	mat4x4 ViewMatrix, ViewMatrixInverse;
 
 public:
-	vec3 X, Y, Z, Position;
+	vec3 X, Y, Z, Position, currentReference;
 	
 };
 
