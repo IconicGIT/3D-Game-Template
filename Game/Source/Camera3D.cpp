@@ -86,6 +86,8 @@ bool Camera3D::Update(float dt)
 	Position += newPos;
 
 	//Mouse Movement
+
+	//Move around point
 	if (app->input->GetMouseButtonDown(SDL_BUTTON_RIGHT) == KEY_REPEAT/* && app->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT*/)
 	{
 		int dx = -app->input->GetMouseXMotion();
@@ -122,6 +124,7 @@ bool Camera3D::Update(float dt)
 
 	}
 
+	//Move around point
 	if (app->input->GetMouseButtonDown(SDL_BUTTON_LEFT) == KEY_REPEAT/* && app->input->GetKey(SDL_SCANCODE_LALT) == KEY_REPEAT*/)
 	{
 		int dx = -app->input->GetMouseXMotion();
