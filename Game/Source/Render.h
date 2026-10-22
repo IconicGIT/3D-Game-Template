@@ -2,10 +2,20 @@
 #define __RENDER_H__
 
 #include "Module.h"
+#include "Globals.h"
+#include "glmath.h"	
 
-#include "Point.h"
 
-#include "SDL/include/SDL.h"
+struct Gl_Attributes
+{
+	bool AmbientOclussion;
+	bool Color_Materials;
+	bool Cull_Face = true;
+	bool Depth_test = true;
+	bool Front;
+	bool Lightning;
+	bool Wireframe;
+};
 
 class Render : public Module
 {
@@ -30,12 +40,15 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
+	void OnResize(int width, int height);
+
 
 public:
 	SDL_GLContext glContext;
-	SDL_Rect camera;
-	SDL_Rect viewport;
-	SDL_Color background;
+	mat3x3 normalMatrix;
+	mat4x4 modelMatrix, viewMatrix, projectionMatrix;
+	float fov = 60.f;
+	Gl_Attributes attributes;
 };
 
 #endif // __RENDER_H__

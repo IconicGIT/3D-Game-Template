@@ -217,3 +217,8 @@ void Camera3D::LookAt(const vec3& Spot)
 
 	CalculateViewMatrix();
 }
+
+const mat4x4& Camera3D::GetViewMatrix() const
+{
+	return ViewMatrix;
+}

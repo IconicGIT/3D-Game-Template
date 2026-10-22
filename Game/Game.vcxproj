@@ -51,6 +51,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Build\$(Configuration)</OutDir>
     <IntDir>$(SolutionDir)Build\$(Configuration)\Obj\</IntDir>
+    <IncludePath>$(SolutionDir)Game\Source\External\Glew\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Game\Source\External\Glew\libx86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -98,21 +100,27 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Camera3D.cpp" />
+    <ClCompile Include="Source\Color.cpp" />
     <ClCompile Include="Source\External\glmath\glmath.cpp" />
+    <ClCompile Include="Source\glmath.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\App.cpp" />
     <ClCompile Include="Source\Audio.cpp" />
     <ClCompile Include="Source\Input.cpp" />
     <ClCompile Include="Source\ModuleTemplate.cpp" />
+    <ClCompile Include="Source\Primitive.cpp" />
     <ClCompile Include="Source\Scene.cpp" />
     <ClCompile Include="Source\Render.cpp" />
     <ClCompile Include="Source\Textures.cpp" />
     <ClCompile Include="Source\Timer.cpp" />
     <ClCompile Include="Source\Window.cpp" />
     <ClInclude Include="Source\Camera3D.h" />
+    <ClInclude Include="Source\Color.h" />
     <ClInclude Include="Source\External\glmath\glmath.h" />
+    <ClInclude Include="Source\glmath.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\ModuleTemplate.h" />
+    <ClInclude Include="Source\Primitive.h" />
     <ClInclude Include="Source\Queue.h" />
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\Audio.h" />

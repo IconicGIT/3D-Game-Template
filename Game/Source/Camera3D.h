@@ -2,7 +2,7 @@
 #define __CAMERA_3D__
 
 #include "Module.h"
-#include "glmath/glmath.h"	
+#include "glmath.h"	
 #include "SDL/include/SDL.h"
 
 
@@ -39,6 +39,8 @@ public:
 
 	void Look(const vec3& Position, const vec3& Reference, bool RotateAroundReference);
 	void LookAt(const vec3& Spot);
+
+	const mat4x4& GetViewMatrix() const;
 
 private:
 	SDL_Texture* img;

@@ -7,6 +7,8 @@
 
 #include "SDL/include/SDL.h"
 
+#include "Render.h"
+
 #define MAX_KEYS 300
 
 Input::Input() : Module()
@@ -125,15 +127,15 @@ bool Input::PreUpdate()
 				quit = true;
 				break;
 
-			//case SDL_WINDOWEVENT:
-			//{
-			//	if (e.window.event == SDL_WINDOWEVENT_RESIZED)
-			//	{
-			//		App->renderer3D->OnResize(e.window.data1, e.window.data2);
-			//		/*windowChanged = true;*/
-			//	}
-			//}
-			//break;
+			case SDL_WINDOWEVENT:
+			{
+				if (e.window.event == SDL_WINDOWEVENT_RESIZED)
+				{
+					app->render->OnResize(e.window.data1, e.window.data2);
+					/*windowChanged = true;*/
+				}
+			}
+			break;
 
 			//case (SDL_DROPFILE): {      // In case if dropped file
 			//	dropped_filedir = e.drop.file;

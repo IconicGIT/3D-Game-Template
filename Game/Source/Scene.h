@@ -2,6 +2,7 @@
 #define __SCENE_H__
 
 #include "Module.h"
+#include "Primitive.h"
 
 struct SDL_Texture;
 
@@ -31,6 +32,12 @@ public:
 
 	// Called before quitting
 	bool CleanUp();
+
+	Prim_Plane plane;
+	Prim_Cube cube;
+	Prim_Sphere sphere;
+	Prim_Cylinder cil;
+
 
 private:
 	SDL_Texture* img;
