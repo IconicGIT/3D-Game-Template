@@ -22,7 +22,7 @@ Render::~Render()
 // Called before render is available
 bool Render::Awake(pugi::xml_node& config)
 {
-	LOG("Creating 3D Renderer Context");
+	DEBUG_LOG("Creating 3D Renderer Context");
 	bool ret = true;
 
 	Uint32 flags = SDL_RENDERER_ACCELERATED;
@@ -30,7 +30,7 @@ bool Render::Awake(pugi::xml_node& config)
 	if(config.child("vsync").attribute("value").as_bool(true) == true)
 	{
 		flags |= SDL_RENDERER_PRESENTVSYNC;
-		LOG("Using vsync");
+		DEBUG_LOG("Using vsync");
 	}
 
 
@@ -51,7 +51,7 @@ bool Render::Awake(pugi::xml_node& config)
 	GLenum error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LOG("Error initializing OpenGL! %s\n", error);
+		DEBUG_LOG("Error initializing OpenGL! %s\n", error);
 		ret = false;
 	}
 
@@ -63,7 +63,7 @@ bool Render::Awake(pugi::xml_node& config)
 	error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LOG("Error initializing OpenGL! %s\n", error);
+		DEBUG_LOG("Error initializing OpenGL! %s\n", error);
 		ret = false;
 	}
 
@@ -77,7 +77,7 @@ bool Render::Awake(pugi::xml_node& config)
 	error = glGetError();
 	if (error != GL_NO_ERROR)
 	{
-		LOG("Error initializing OpenGL! %s\n", error);
+		DEBUG_LOG("Error initializing OpenGL! %s\n", error);
 		ret = false;
 	}
 
@@ -111,9 +111,9 @@ bool Render::Awake(pugi::xml_node& config)
 	//GLenum error = glewInit();
 	//if (GLEW_OK != error)
 	//{
-	//	DEBUG_LOG("Glew failed, Error: %s\n", glewGetErrorString(error));
+	//	DEBUG_DEBUG_LOG("Glew failed, Error: %s\n", glewGetErrorString(error));
 	//}
-	//DEBUG_LOG("Glew version: %s\n", glewGetString(GLEW_VERSION));
+	//DEBUG_DEBUG_LOG("Glew version: %s\n", glewGetString(GLEW_VERSION));
 
 
 	return ret;
@@ -122,7 +122,7 @@ bool Render::Awake(pugi::xml_node& config)
 // Called before the first frame
 bool Render::Start()
 {
-	LOG("render start");
+	DEBUG_LOG("render start");
 	// back background
 
 	return true;
@@ -211,7 +211,7 @@ bool Render::PostUpdate()
 // Called before quitting
 bool Render::CleanUp()
 {
-	LOG("Destroying SDL render");
+	DEBUG_LOG("Destroying SDL render");
 	SDL_GL_DeleteContext(glContext);
 	return true;
 }

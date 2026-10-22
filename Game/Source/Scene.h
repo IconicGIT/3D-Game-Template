@@ -2,7 +2,7 @@
 #define __SCENE_H__
 
 #include "Module.h"
-#include "Primitive.h"
+#include "par_shapes.h"
 
 struct SDL_Texture;
 
@@ -33,11 +33,7 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-	Prim_Plane plane;
-	Prim_Cube cube;
-	Prim_Sphere sphere;
-	Prim_Cylinder cil;
-
+	par_shapes_mesh* cube;
 
 private:
 	SDL_Texture* img;

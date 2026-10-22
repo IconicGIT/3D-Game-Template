@@ -15,18 +15,17 @@
     <ClCompile Include="Source\External\PugiXml\src\pugixml.cpp">
       <Filter>External\PugiXml</Filter>
     </ClCompile>
-    <ClCompile Include="Source\External\glmath\glmath.cpp">
-      <Filter>External\glmath</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Camera3D.cpp" />
     <ClCompile Include="Source\ModuleTemplate.cpp">
       <Filter>Utils\ModuleTemplate</Filter>
     </ClCompile>
     <ClCompile Include="Source\Timer.cpp" />
-    <ClCompile Include="Source\Primitive.cpp" />
     <ClCompile Include="Source\Color.cpp" />
     <ClCompile Include="Source\glmath.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="par_shapes.cpp">
+      <Filter>External\par_shapes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,18 +65,17 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="Source\Globals.h" />
-    <ClInclude Include="Source\External\glmath\glmath.h">
-      <Filter>External\glmath</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Camera3D.h" />
     <ClInclude Include="Source\ModuleTemplate.h">
       <Filter>Utils\ModuleTemplate</Filter>
     </ClInclude>
     <ClInclude Include="Source\Timer.h" />
-    <ClInclude Include="Source\Primitive.h" />
     <ClInclude Include="Source\Color.h" />
     <ClInclude Include="Source\glmath.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\External\par_shapes\par_shapes.h">
+      <Filter>External\par_shapes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -90,11 +88,11 @@
     <Filter Include="External\PugiXml">
       <UniqueIdentifier>{2855ff7f-53a1-413d-a75b-18b4ade921dd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="External\glmath">
-      <UniqueIdentifier>{3a3e1662-9c3a-47b0-a20e-0f6c8a49e06e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Utils\ModuleTemplate">
       <UniqueIdentifier>{53413f4a-be0d-4f57-9eee-ba95d150e932}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="External\par_shapes">
+      <UniqueIdentifier>{468586f3-9d86-461a-9316-571df6953650}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

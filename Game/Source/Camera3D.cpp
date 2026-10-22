@@ -26,7 +26,7 @@ Camera3D::~Camera3D()
 // Called before render is available
 bool Camera3D::Awake()
 {
-	LOG("Loading Camera3D");
+	DEBUG_LOG("Loading Camera3D");
 	bool ret = true;
 
 
@@ -157,10 +157,12 @@ bool Camera3D::Update(float dt)
 
 	}
 
-	LOG("position: %f %f %f", Position.x, Position.y, Position.z);
-	LOG("direction x: %f %f %f", X.x, X.y, X.z);
-	LOG("direction y: %f %f %f", Y.x, Y.y, Y.z);
-	LOG("direction z: %f %f %f", Z.x, Z.y, Z.z);
+	DEBUG_LOG("position: %f %f %f", Position.x, Position.y, Position.z);
+	DEBUG_LOG("direction x: %f %f %f", X.x, X.y, X.z);
+	DEBUG_LOG("direction y: %f %f %f", Y.x, Y.y, Y.z);
+	DEBUG_LOG("direction z: %f %f %f", Z.x, Z.y, Z.z);
+
+	CalculateViewMatrix();
 
 	return true;
 }
@@ -176,7 +178,7 @@ bool Camera3D::PostUpdate()
 // Called before quitting
 bool Camera3D::CleanUp()
 {
-	LOG("Freeing camera 3D");
+	DEBUG_LOG("Freeing camera 3D");
 
 	return true;
 }

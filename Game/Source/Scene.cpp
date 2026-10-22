@@ -8,6 +8,36 @@
 
 #include "Defs.h"
 #include "Log.h"
+#include "glew.h"
+
+
+
+
+void DrawParShapesMesh(const par_shapes_mesh* mesh)
+{
+	if (mesh == nullptr)
+		return;
+
+	glBegin(GL_TRIANGLES);
+
+	const int indexCount = mesh->ntriangles * 3;
+
+	for (int i = 0; i < indexCount; ++i)
+	{
+		const PAR_SHAPES_T index = mesh->triangles[i];
+
+		if (mesh->normals != nullptr)
+			glNormal3fv(&mesh->normals[index * 3]);
+
+		if (mesh->tcoords != nullptr)
+			glTexCoord2fv(&mesh->tcoords[index * 2]);
+
+		glVertex3fv(&mesh->points[index * 3]);
+	}
+
+	glEnd();
+}
+
 
 Scene::Scene() : Module()
 {
@@ -21,7 +51,7 @@ Scene::~Scene()
 // Called before render is available
 bool Scene::Awake()
 {
-	LOG("Loading Scene");
+	DEBUG_LOG("Loading Scene");
 	bool ret = true;
 
 	return ret;
@@ -32,6 +62,9 @@ bool Scene::Start()
 {
 	//img = app->tex->Load("Assets/Textures/test.png");
 	//app->audio->PlayMusic("Assets/Audio/Music/music_spy.ogg");
+
+	cube = par_shapes_create_cube();
+
 	return true;
 }
 
@@ -44,7 +77,23 @@ bool Scene::PreUpdate()
 // Called each loop iteration
 bool Scene::Update(float dt)
 {
-	plane.Render();
+
+	/*DrawParShapesMesh(cube);*/
+
+	glDisable(GL_LIGHTING);
+	glDisable(GL_CULL_FACE);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glColor3f(1.0f, 0.0f, 1.0f);
+
+	glPushMatrix();
+
+	// Centra el cubo y lo coloca delante de la cámara.
+	glTranslatef(-0.5f, -0.5f, -5.0f);
+
+	DrawParShapesMesh(cube);
+
+	glPopMatrix();
 
 	return true;
 }
@@ -63,7 +112,10 @@ bool Scene::PostUpdate()
 // Called before quitting
 bool Scene::CleanUp()
 {
-	LOG("Freeing scene");
+	DEBUG_LOG("Freeing scene");
+
+	par_shapes_free_mesh(cube);
+	cube = nullptr;
 
 	return true;
 }

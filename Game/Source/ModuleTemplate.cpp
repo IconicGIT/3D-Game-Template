@@ -21,7 +21,7 @@ ModuleTemplate::~ModuleTemplate()
 // Called before render is available
 bool ModuleTemplate::Awake()
 {
-	LOG("Loading ModuleTemplate");
+	DEBUG_LOG("Loading ModuleTemplate");
 	bool ret = true;
 
 	return ret;
@@ -37,7 +37,7 @@ bool ModuleTemplate::Start()
 // Called each loop iteration
 bool ModuleTemplate::PreUpdate()
 {
-	LOG("Loading ModuleTemplate--------------------------------------");
+	DEBUG_LOG("Loading ModuleTemplate--------------------------------------");
 	return true;
 }
 
@@ -59,7 +59,7 @@ bool ModuleTemplate::PostUpdate()
 // Called before quitting
 bool ModuleTemplate::CleanUp()
 {
-	LOG("Freeing camera 3D");
+	DEBUG_LOG("Freeing camera 3D");
 
 	return true;
 }

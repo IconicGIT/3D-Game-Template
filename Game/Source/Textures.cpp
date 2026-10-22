@@ -20,7 +20,7 @@ Textures::~Textures()
 // Called before render is available
 bool Textures::Awake(pugi::xml_node& config)
 {
-	LOG("Init Image library");
+	DEBUG_LOG("Init Image library");
 	bool ret = true;
 
 	// Load support for the PNG image format
@@ -29,7 +29,7 @@ bool Textures::Awake(pugi::xml_node& config)
 
 	if((init & flags) != flags)
 	{
-		LOG("Could not initialize Image lib. IMG_Init: %s", IMG_GetError());
+		DEBUG_LOG("Could not initialize Image lib. IMG_Init: %s", IMG_GetError());
 		ret = false;
 	}
 
@@ -39,7 +39,7 @@ bool Textures::Awake(pugi::xml_node& config)
 // Called before the first frame
 bool Textures::Start()
 {
-	LOG("start textures");
+	DEBUG_LOG("start textures");
 	bool ret = true;
 	return ret;
 }
@@ -47,7 +47,7 @@ bool Textures::Start()
 // Called before quitting
 bool Textures::CleanUp()
 {
-	LOG("Freeing textures and Image library");
+	DEBUG_LOG("Freeing textures and Image library");
 	ListItem<SDL_Texture*>* item;
 
 	for(item = textures.start; item != NULL; item = item->next)
@@ -68,7 +68,7 @@ bool Textures::CleanUp()
 //
 //	if(surface == NULL)
 //	{
-//		LOG("Could not load surface with path: %s. IMG_Load: %s", path, IMG_GetError());
+//		DEBUG_LOG("Could not load surface with path: %s. IMG_Load: %s", path, IMG_GetError());
 //	}
 //	else
 //	{
@@ -104,7 +104,7 @@ bool Textures::UnLoad(SDL_Texture* texture)
 //
 //	if(texture == NULL)
 //	{
-//		LOG("Unable to create texture from surface! SDL Error: %s\n", SDL_GetError());
+//		DEBUG_LOG("Unable to create texture from surface! SDL Error: %s\n", SDL_GetError());
 //	}
 //	else
 //	{

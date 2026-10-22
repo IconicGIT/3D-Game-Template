@@ -8,13 +8,13 @@
 
 struct Gl_Attributes
 {
-	bool AmbientOclussion;
-	bool Color_Materials;
+	bool AmbientOclussion = false;
+	bool Color_Materials = false;
 	bool Cull_Face = true;
 	bool Depth_test = true;
-	bool Front;
-	bool Lightning;
-	bool Wireframe;
+	bool Front = true;
+	bool Lightning = false;
+	bool Wireframe = true;
 };
 
 class Render : public Module

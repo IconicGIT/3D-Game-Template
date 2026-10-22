@@ -29,13 +29,13 @@ Input::~Input()
 // Called before render is available
 bool Input::Awake(pugi::xml_node& config)
 {
-	LOG("Init SDL input event system");
+	DEBUG_LOG("Init SDL input event system");
 	bool ret = true;
 	SDL_Init(0);
 
 	if(SDL_InitSubSystem(SDL_INIT_EVENTS) < 0)
 	{
-		LOG("SDL_EVENTS could not initialize! SDL_Error: %s\n", SDL_GetError());
+		DEBUG_LOG("SDL_EVENTS could not initialize! SDL_Error: %s\n", SDL_GetError());
 		ret = false;
 	}
 
@@ -154,7 +154,7 @@ bool Input::PreUpdate()
 // Called before quitting
 bool Input::CleanUp()
 {
-	LOG("Quitting SDL event subsystem");
+	DEBUG_LOG("Quitting SDL event subsystem");
 	SDL_QuitSubSystem(SDL_INIT_EVENTS);
 	return true;
 }

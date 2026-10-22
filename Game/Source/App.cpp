@@ -132,8 +132,8 @@ bool App::Update()
 
 	float frameSpeed = 1000.f / limitFrames;
 	currentFPS = 1000.0f / elapsedTime;
-	//LOG("Current FPS: %f", currentFPS);
-	//LOG("time left: %f", frameSpeed - elapsedTime);
+	//DEBUG_LOG("Current FPS: %f", currentFPS);
+	//DEBUG_LOG("time left: %f", frameSpeed - elapsedTime);
 	if ((frameSpeed - elapsedTime) > 0.0f)
 	{
 		SDL_Delay(fabs(floor((long)frameSpeed - elapsedTime)));
@@ -152,7 +152,7 @@ bool App::LoadConfig()
 	// TODO 3: Check result for loading errors
 	if(result == NULL)
 	{
-		LOG("Could not load map xml file config.xml. pugi error: %s", result.description());
+		DEBUG_LOG("Could not load map xml file config.xml. pugi error: %s", result.description());
 		ret = false;
 	}
 	else
