@@ -167,6 +167,8 @@ bool App::LoadConfig()
 // ---------------------------------------------
 void App::PrepareUpdate()
 {
+	ms_timer.Start();
+
 }
 
 // ---------------------------------------------
@@ -222,6 +224,27 @@ bool App::DoUpdate()
 // Call modules after each loop iteration
 bool App::PostUpdate()
 {
+	ms_timer.Stop();
+
+	double elapsedTime = (double)ms_timer.Read();
+
+	double perfectFrameTime = 1000.f / limitFrames;
+
+	double timeRelation = 1 / (elapsedTime / perfectFrameTime);
+
+	double currentFps = limitFrames * timeRelation;
+
+
+	dt = 1.f / (float)currentFps;
+
+	if ((perfectFrameTime - elapsedTime) > 0.0f)
+	{
+		dt = perfectFrameTime / 1000.f;
+		double timeToWait = (double)perfectFrameTime - (double)elapsedTime;
+		SDL_Delay(fabs(floor(timeToWait)));
+	}
+
+
 	bool ret = true;
 	ListItem<Module*>* item;
 	Module* pModule = NULL;

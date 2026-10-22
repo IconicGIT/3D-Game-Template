@@ -3,6 +3,7 @@
 
 #include "Module.h"
 #include "List.h"
+#include "Timer.h"
 
 #include "PugiXml/src/pugixml.hpp"
 
@@ -95,6 +96,7 @@ private:
 
 	uint frames;
 	float dt;
+	Timer	ms_timer;
 
 	//fps
 	int limitFrames = 60;

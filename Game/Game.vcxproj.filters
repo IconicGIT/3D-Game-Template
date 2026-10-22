@@ -22,6 +22,7 @@
     <ClCompile Include="Source\ModuleTemplate.cpp">
       <Filter>Utils\ModuleTemplate</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h" />
@@ -67,6 +68,7 @@
     <ClInclude Include="Source\ModuleTemplate.h">
       <Filter>Utils\ModuleTemplate</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">

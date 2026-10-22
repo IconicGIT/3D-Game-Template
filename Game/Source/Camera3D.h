@@ -2,6 +2,9 @@
 #define __CAMERA_3D__
 
 #include "Module.h"
+#include "glmath/glmath.h"	
+#include "SDL/include/SDL.h"
+
 
 struct SDL_Texture;
 
@@ -35,7 +38,8 @@ public:
 private:
 	SDL_Texture* img;
 
-
+public:
+	vec3 X, Y, Z, Position;
 	
 };
 
