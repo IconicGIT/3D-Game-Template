@@ -65,6 +65,8 @@ bool Scene::Start()
 
 	cube = par_shapes_create_cube();
 
+	mesh = new Mesh(cube->points, cube->npoints, cube->triangles, cube->ntriangles);
+
 	return true;
 }
 
@@ -80,20 +82,23 @@ bool Scene::Update(float dt)
 
 	/*DrawParShapesMesh(cube);*/
 
-	glDisable(GL_LIGHTING);
-	glDisable(GL_CULL_FACE);
+	//glDisable(GL_LIGHTING);
+	////glDisable(GL_CULL_FACE);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glColor3f(1.0f, 0.0f, 1.0f);
+	////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glColor3f(1.0f, 0.0f, 1.0f);
 
-	glPushMatrix();
+	//glPushMatrix();
 
-	// Centra el cubo y lo coloca delante de la cámara.
-	glTranslatef(-0.5f, -0.5f, -5.0f);
+	//// Centra el cubo y lo coloca delante de la cámara.
+	//glTranslatef(-0.5f, -0.5f, -5.0f);
 
-	DrawParShapesMesh(cube);
+	//DrawParShapesMesh(cube);
 
-	glPopMatrix();
+	//glPopMatrix();
+
+
+	mesh->Draw();
 
 	return true;
 }

@@ -3,6 +3,7 @@
 
 #include "Module.h"
 #include "par_shapes.h"
+#include "Mesh.h"
 
 struct SDL_Texture;
 
@@ -33,7 +34,8 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-	par_shapes_mesh* cube;
+	par_shapes_mesh* cube = nullptr;
+	Mesh* mesh = nullptr;
 
 private:
 	SDL_Texture* img;

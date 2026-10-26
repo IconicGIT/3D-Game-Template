@@ -14,7 +14,7 @@ struct Gl_Attributes
 	bool Depth_test = true;
 	bool Front = true;
 	bool Lightning = false;
-	bool Wireframe = true;
+	bool Wireframe = false;
 };
 
 class Render : public Module

@@ -27,6 +27,9 @@
     <ClCompile Include="par_shapes.cpp">
       <Filter>External\par_shapes</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Mesh.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h" />
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="Source\External\par_shapes\par_shapes.h">
       <Filter>External\par_shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Mesh.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

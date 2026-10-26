@@ -58,10 +58,10 @@ bool Camera3D::Update(float dt)
 	if (app->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
 		speed = 50.0f * dt;
 
-	if (app->input->GetKey(SDL_SCANCODE_R) == KEY_REPEAT) 
+	if (app->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT) 
 		newPos.y += speed;
 
-	if (app->input->GetKey(SDL_SCANCODE_E) == KEY_REPEAT) 
+	if (app->input->GetKey(SDL_SCANCODE_Q) == KEY_REPEAT) 
 		newPos.y -= speed;
 
 	if (app->input->GetKey(SDL_SCANCODE_W) == KEY_REPEAT) 
@@ -157,10 +157,10 @@ bool Camera3D::Update(float dt)
 
 	}
 
-	DEBUG_LOG("position: %f %f %f", Position.x, Position.y, Position.z);
-	DEBUG_LOG("direction x: %f %f %f", X.x, X.y, X.z);
-	DEBUG_LOG("direction y: %f %f %f", Y.x, Y.y, Y.z);
-	DEBUG_LOG("direction z: %f %f %f", Z.x, Z.y, Z.z);
+	//DEBUG_LOG("position: %f %f %f", Position.x, Position.y, Position.z);
+	//DEBUG_LOG("direction x: %f %f %f", X.x, X.y, X.z);
+	//DEBUG_LOG("direction y: %f %f %f", Y.x, Y.y, Y.z);
+	//DEBUG_LOG("direction z: %f %f %f", Z.x, Z.y, Z.z);
 
 	CalculateViewMatrix();
 
