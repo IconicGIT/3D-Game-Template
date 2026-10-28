@@ -24,11 +24,17 @@
     <ClCompile Include="Source\glmath.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="par_shapes.cpp">
-      <Filter>External\par_shapes</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Mesh.cpp">
       <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Shader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TextureLoader.cpp">
+      <Filter>Resource Loading</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\External\par_shapes\par_shapes.cpp">
+      <Filter>External\par_shapes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +89,15 @@
     <ClInclude Include="Source\Mesh.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Texture.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Shader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TextureLoader.h">
+      <Filter>Resource Loading</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">
@@ -100,5 +115,25 @@
     <Filter Include="External\par_shapes">
       <UniqueIdentifier>{468586f3-9d86-461a-9316-571df6953650}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{f6a0413f-0162-44c0-8be4-95b31cd45e8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Shaders">
+      <UniqueIdentifier>{5f3e952d-6b90-490b-9db0-ba683d6ca945}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Loading">
+      <UniqueIdentifier>{609fe520-9340-4286-bcd8-cd391c9b9b65}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Output\Assets\Shaders\default.vertex">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+    <None Include="..\Output\Assets\Shaders\selected.fragment">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
+    <None Include="..\Output\Assets\Shaders\default.fragment">
+      <Filter>Graphics\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

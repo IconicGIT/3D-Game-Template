@@ -63,9 +63,11 @@ bool Scene::Start()
 	//img = app->tex->Load("Assets/Textures/test.png");
 	//app->audio->PlayMusic("Assets/Audio/Music/music_spy.ogg");
 
-	cube = par_shapes_create_cube();
-
+	cube = par_shapes_create_icosahedron();
+	tempShader = new Shader("Assets/Shaders/default.vertex", "Assets/Shaders/default.fragment");
+	tempTexture = LoadTexture("Assets/Textures/checker_pattern.png");
 	mesh = new Mesh(cube->points, cube->npoints, cube->triangles, cube->ntriangles);
+	mesh->textures.push_back(tempTexture);
 
 	return true;
 }
@@ -82,7 +84,7 @@ bool Scene::Update(float dt)
 
 	/*DrawParShapesMesh(cube);*/
 
-	//glDisable(GL_LIGHTING);
+	glDisable(GL_LIGHTING);
 	////glDisable(GL_CULL_FACE);
 
 	////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -97,8 +99,9 @@ bool Scene::Update(float dt)
 
 	//glPopMatrix();
 
-
-	mesh->Draw();
+	tempShader->Use();
+	mesh->Draw(*tempShader);
+	tempShader->Unuse();
 
 	return true;
 }
@@ -121,6 +124,9 @@ bool Scene::CleanUp()
 
 	par_shapes_free_mesh(cube);
 	cube = nullptr;
+
+	delete tempShader;
+	tempShader = nullptr;
 
 	return true;
 }

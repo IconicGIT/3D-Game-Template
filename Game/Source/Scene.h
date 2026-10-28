@@ -4,6 +4,8 @@
 #include "Module.h"
 #include "par_shapes.h"
 #include "Mesh.h"
+#include "Texture.h"
+#include "TextureLoader.h"
 
 struct SDL_Texture;
 
@@ -39,6 +41,9 @@ public:
 
 private:
 	SDL_Texture* img;
+	Shader* tempShader;
+	Texture tempTexture;
+
 };
 
 #endif // __SCENE_H__

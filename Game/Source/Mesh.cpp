@@ -54,6 +54,7 @@ Mesh::Mesh(float* points, int nPoints, uint16_t* indices, int nIndices)
         DEBUG_LOG("index: %i", i);
     }
 
+
     SetupMesh();
 }
 
@@ -110,7 +111,7 @@ void Mesh::SetupMesh()
     //delete[] bboxVertices;
 }
 
-void Mesh::Draw(/*Shader& shader,*/ bool wireframeActive)
+void Mesh::Draw(Shader& shader, bool wireframeActive)
 {
     
 
@@ -141,33 +142,33 @@ void Mesh::Draw(/*Shader& shader,*/ bool wireframeActive)
 
 
     //Draw textures
-    //unsigned int diffuseNr = 1;
-    //unsigned int specularNr = 1;
-    //if (!textures.empty())
-    //{
-    //    for (unsigned int i = 0; i < textures.size(); i++)
-    //    {
-    //        // retrieve texture number (the N in diffuse_textureN)
-    //        std::string number;
-    //        std::string name = textures[i].type;
-    //        if (name == "texture_diffuse")
-    //            number = std::to_string(diffuseNr++);
-    //        else if (name == "texture_specular")
-    //            number = std::to_string(specularNr++);
+    unsigned int diffuseNr = 1;
+    unsigned int specularNr = 1;
+    if (!textures.empty())
+    {
+        for (unsigned int i = 0; i < textures.size(); i++)
+        {
+            // retrieve texture number (the N in diffuse_textureN)
+            std::string number;
+            std::string name = textures[i].type;
+            if (name == "texture_diffuse")
+                number = std::to_string(diffuseNr++);
+            else if (name == "texture_specular")
+                number = std::to_string(specularNr++);
 
 
-    //        glActiveTexture(GL_TEXTURE0);
-    //        glBindTexture(GL_TEXTURE_2D, 0);
-    //        glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
 
 
-    //        glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+            glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
 
-    //        //shader.SetInt(("material." + name + number).c_str(), i);
-    //        glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-    //        glBindTexture(GL_TEXTURE_2D, textures[i].id);
-    //    }
-    //}
+            //shader.SetInt(("material." + name + number).c_str(), i);
+            glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
+            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        }
+    }
 
    /* for (size_t i = 0; i < 8; i++)
     {
@@ -192,28 +193,28 @@ void Mesh::Draw(/*Shader& shader,*/ bool wireframeActive)
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-    //glBindTexture(GL_TEXTURE_2D, 0);
-    //glDisable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
 
     
-    ////deactivate Textures
-    //if (!textures.empty())
-    //{
-    //    for (unsigned int i = 0; i < textures.size(); i++)
-    //    {
-    //        std::string number;
-    //        std::string name = textures[i].type;
-    //        if (name == "texture_diffuse")
-    //            number = std::to_string(diffuseNr++);
-    //        else if (name == "texture_specular")
-    //            number = std::to_string(specularNr++);
+    //deactivate Textures
+    if (!textures.empty())
+    {
+        for (unsigned int i = 0; i < textures.size(); i++)
+        {
+            std::string number;
+            std::string name = textures[i].type;
+            if (name == "texture_diffuse")
+                number = std::to_string(diffuseNr++);
+            else if (name == "texture_specular")
+                number = std::to_string(specularNr++);
 
 
-    //        glActiveTexture(GL_TEXTURE0);
-    //        glBindTexture(GL_TEXTURE_2D, 0);
-    //        glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-    //    }
-    //}
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+            glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
+        }
+    }
 
 }
 

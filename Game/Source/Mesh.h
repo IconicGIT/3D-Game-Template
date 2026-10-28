@@ -4,8 +4,8 @@
 #include "glmath.h"
 #include <iostream>
 #include <vector>
-//#include "Shader.h"
-//#include "Texture.h"
+#include "Shader.h"
+#include "Texture.h"
 //#include "MathGeoLib/Geometry/AABB.h"
 #include "Color.h"
 
@@ -38,14 +38,14 @@ public:
     // mesh data
     std::vector<Vertex>       vertices;
     std::vector<unsigned int> indices;
-    //std::vector<Texture>      textures;
+    std::vector<Texture>      textures;
 
-    //Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
+    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
     Mesh(float* vertices, int nVertices, uint16_t* indices, int nIndices);
     Mesh() {}
 
-    void Draw(/*Shader& shader,*/ bool wireframeActive = false);
+    void Draw(Shader& shader, bool wireframeActive = false);
 
     bool GetDrawBoundingBox() const
     {
