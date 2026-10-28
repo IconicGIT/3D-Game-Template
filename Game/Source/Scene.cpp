@@ -63,11 +63,16 @@ bool Scene::Start()
 	//img = app->tex->Load("Assets/Textures/test.png");
 	//app->audio->PlayMusic("Assets/Audio/Music/music_spy.ogg");
 
+	app->tex->LoadFromPath("Assets/Textures/default_texture.png");
+	app->tex->LoadFromPath("Assets/Textures/Baker_house.png");
+
 	cube = par_shapes_create_icosahedron();
 	tempShader = new Shader("Assets/Shaders/default.vertex", "Assets/Shaders/default.fragment");
 	tempTexture = LoadTexture("Assets/Textures/checker_pattern.png");
 	mesh = new Mesh(cube->points, cube->npoints, cube->triangles, cube->ntriangles);
 	mesh->textures.push_back(tempTexture);
+
+	tempModel = new Model("Assets/Models/baker_house.fbx", app);
 
 	return true;
 }
@@ -84,7 +89,7 @@ bool Scene::Update(float dt)
 
 	/*DrawParShapesMesh(cube);*/
 
-	glDisable(GL_LIGHTING);
+	//glDisable(GL_LIGHTING);
 	////glDisable(GL_CULL_FACE);
 
 	////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -99,9 +104,16 @@ bool Scene::Update(float dt)
 
 	//glPopMatrix();
 
+	//tempShader->Use();
+	//mesh->Draw(*tempShader);
+	//tempShader->Unuse();
+
 	tempShader->Use();
-	mesh->Draw(*tempShader);
+
+	tempModel->Draw(*tempShader, false);
+
 	tempShader->Unuse();
+
 
 	return true;
 }

@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Texture.h"
 #include "TextureLoader.h"
+#include "Model.h"
 
 struct SDL_Texture;
 
@@ -43,6 +44,7 @@ private:
 	SDL_Texture* img;
 	Shader* tempShader;
 	Texture tempTexture;
+	Model* tempModel;
 
 };
 

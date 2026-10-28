@@ -36,6 +36,9 @@
     <ClCompile Include="Source\External\par_shapes\par_shapes.cpp">
       <Filter>External\par_shapes</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Model.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h" />
@@ -97,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="Source\TextureLoader.h">
       <Filter>Resource Loading</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Model.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

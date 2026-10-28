@@ -1,6 +1,7 @@
 #include "App.h"
 #include "Render.h"
 #include "Textures.h"
+#include "TextureLoader.h"
 
 #include "Defs.h"
 #include "Log.h"
@@ -41,6 +42,14 @@ bool Textures::Start()
 {
 	DEBUG_LOG("start textures");
 	bool ret = true;
+
+
+	imageExtensionsAccepted.push_back("png");
+	imageExtensionsAccepted.push_back("jpg");
+	imageExtensionsAccepted.push_back("bmp");
+	imageExtensionsAccepted.push_back("tga");
+
+
 	return ret;
 }
 
@@ -118,4 +127,85 @@ bool Textures::UnLoad(SDL_Texture* texture)
 void Textures::GetSize(const SDL_Texture* texture, uint& width, uint& height) const
 {
 	SDL_QueryTexture((SDL_Texture*)texture, NULL, NULL, (int*) &width, (int*) &height);
+}
+
+bool Textures::LoadFromPath(char* fileDir)
+{
+	bool ret = false;
+	std::string sDraggedFileDir = fileDir;
+
+
+	int dotPos = sDraggedFileDir.find_last_of(".");
+
+	std::string fileExtension = sDraggedFileDir.substr(dotPos + 1);
+
+	int a;
+	//for (std::string ext : modelExtensionsAccepted)
+	//{
+	//	a = strncmp(fileExtension.c_str(), ext.c_str(), fileExtension.length());
+	//	if (a == 0)
+	//	{
+	//		LoadModel(draggedFileDir, ext, createGameobject);
+	//		ret = true;
+
+	//		return ret;
+	//	}
+	//}
+
+	for (int i = 0; i < imageExtensionsAccepted.size(); i++)
+	{
+		a = strncmp(fileExtension.c_str(), imageExtensionsAccepted[i].c_str(), fileExtension.length());
+		if (a == 0)
+		{
+			std::string path_s = fileDir;
+			int lastBar = path_s.find_last_of("\\\"");
+			if (lastBar == -1)
+			{
+				lastBar = path_s.find_last_of("/");
+			}
+
+			std::string name = path_s.substr(lastBar + 1);
+
+			bool alreadyLoaded = false;
+
+			for (Texture tCmp : allTextures)
+			{
+				int b = strncmp(name.c_str(), tCmp.name.c_str(), name.length());
+
+				if (b == 0)
+					alreadyLoaded = true;
+
+				if (alreadyLoaded)
+					break;
+
+			}
+
+			if (!alreadyLoaded)
+			{
+				Texture tex = LoadTexture(fileDir);
+
+				tex.name = name;
+
+				//Save_Texture(&tex);
+				allTextures.push_back(tex);
+
+				ret = true;
+				DEBUG_LOG("Loaded Texture [%s]. [path: %s]", name.c_str(), fileDir);
+			}
+			else
+			{
+				ret = true;
+				DEBUG_LOG("Texture [%s] is already loaded! [path: %s]", name.c_str(), fileDir);
+			}
+
+
+
+			return ret;
+		}
+	}
+
+	DEBUG_LOG("Could not load file. File not supported (%s)", fileExtension.c_str());
+
+
+	return ret;
 }

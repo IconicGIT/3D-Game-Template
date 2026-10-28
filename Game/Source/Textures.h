@@ -2,8 +2,9 @@
 #define __TEXTURES_H__
 
 #include "Module.h"
-
+#include "Texture.h"
 #include "List.h"
+#include <vector>
 
 struct SDL_Texture;
 struct SDL_Surface;
@@ -35,6 +36,20 @@ public:
 public:
 
 	List<SDL_Texture*> textures;
+	std::vector<Texture> allTextures;
+
+	std::vector<Texture> GetAllTextures() const
+	{
+		return allTextures;
+	}
+
+	bool LoadFromPath(char* fileDir);
+
+private:
+
+	std::vector<std::string> imageExtensionsAccepted;
+
+
 };
 
 
