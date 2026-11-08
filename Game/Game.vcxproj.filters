@@ -104,6 +104,9 @@
     <ClInclude Include="Source\Model.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\vertex.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">

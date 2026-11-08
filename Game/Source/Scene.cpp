@@ -3,6 +3,7 @@
 #include "Textures.h"
 #include "Audio.h"
 #include "Render.h"
+#include "Camera3D.h"
 #include "Window.h"
 #include "Scene.h"
 
@@ -63,6 +64,7 @@ bool Scene::Start()
 	//img = app->tex->Load("Assets/Textures/test.png");
 	//app->audio->PlayMusic("Assets/Audio/Music/music_spy.ogg");
 
+	app->tex->LoadFromPath("Assets/Textures/checker_pattern.png");
 	app->tex->LoadFromPath("Assets/Textures/default_texture.png");
 	app->tex->LoadFromPath("Assets/Textures/Baker_house.png");
 
@@ -73,6 +75,7 @@ bool Scene::Start()
 	mesh->textures.push_back(tempTexture);
 
 	tempModel = new Model("Assets/Models/baker_house.fbx", app);
+	
 
 	return true;
 }
@@ -109,6 +112,15 @@ bool Scene::Update(float dt)
 	//tempShader->Unuse();
 
 	tempShader->Use();
+
+	mat4x4 proj = app->render->projectionMatrix;
+	mat4x4 view = app->camera3D->GetViewMatrix();
+	mat4x4 model = IdentityMatrix;
+
+	tempShader->SetMat4x4("projection", proj);
+	tempShader->SetMat4x4("view", view);
+	tempShader->SetMat4x4("model", model);
+
 
 	tempModel->Draw(*tempShader, false);
 

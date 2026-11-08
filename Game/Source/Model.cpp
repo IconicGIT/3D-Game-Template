@@ -168,7 +168,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
         bool skip = false;
         for (unsigned int j = 0; j < app->tex->GetAllTextures().size(); j++)
         {
-            if (std::strcmp(app->tex->GetAllTextures()[j].path.c_str(), str.C_Str()) == 0)
+            if (std::strcmp(app->tex->GetAllTextures()[j].name.c_str(), str.C_Str()) == 0)
             {
                 loaded_textures.push_back(app->tex->GetAllTextures()[j]);
                 skip = true;
