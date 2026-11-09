@@ -8,7 +8,8 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
+#include <unordered_map>
+#include <string>
 
 class Shader
 {
@@ -30,7 +31,20 @@ public:
     void SetInt(const std::string& name, int value) const;
     void SetFloat(const std::string& name, float value) const;
 
-    void SetMat4x4(const std::string& name, mat4x4 value) const;
+    void SetMat4x4(const std::string& name, const mat4x4& value) const;
+    void SetVec4(const std::string& name, const vec4& value) const;
+
+    void SetTexture(const std::string& name, int);
+    bool IsValid() const;
+
+
+private:
+
+    bool valid = false;
+    mutable std::unordered_map<std::string, GLint> uniformLocations;
+
+    GLint GetUniformLocation(const std::string& name) const;
+
 };
 
 #endif

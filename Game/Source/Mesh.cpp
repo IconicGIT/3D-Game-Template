@@ -1,5 +1,6 @@
 #include "Mesh.h"
 #include "Log.h"
+#include "OpenGLDebug.h"
 
 //Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
 //{
@@ -70,10 +71,14 @@ void Mesh::SetupMesh()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    CheckOpenGLError("pushing mesh vertices");
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
         &indices[0], GL_STATIC_DRAW);
+    CheckOpenGLError("pushing mesh indices");
 
     // vertex positions
     glEnableVertexAttribArray(0);
@@ -141,6 +146,13 @@ void Mesh::Draw(Shader& shader, bool wireframeActive)
 
 
 
+    //TODO:
+    // adaptar este codigo para usar uAlbedoMap
+    
+
+    // uTint usa Blanco por defecto
+    glUniform4f(glGetUniformLocation(shader.ID, "uTint"),1.f, 1.f, 1.f, 1.f);
+
 
     //Draw textures
     unsigned int diffuseNr = 1;
@@ -149,25 +161,29 @@ void Mesh::Draw(Shader& shader, bool wireframeActive)
     {
         for (unsigned int i = 0; i < textures.size(); i++)
         {
-            // retrieve texture number (the N in diffuse_textureN)
-            std::string number;
-            std::string name = textures[i].type;
-            if (name == "texture_diffuse")
-                number = std::to_string(diffuseNr++);
-            else if (name == "texture_specular")
-                number = std::to_string(specularNr++);
+            //// retrieve texture number (the N in diffuse_textureN)
+            //std::string number;
+            //std::string name = textures[i].type;
+            //if (name == "texture_diffuse")
+            //    number = std::to_string(diffuseNr++);
+            //else if (name == "texture_specular")
+            //    number = std::to_string(specularNr++);
 
+
+            //glActiveTexture(GL_TEXTURE0);
+            //glBindTexture(GL_TEXTURE_2D, 0);
+            //glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
+
+
+            //glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+
+            ////shader.SetInt(("material." + name + number).c_str(), i);
+            //glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
+            //glBindTexture(GL_TEXTURE_2D, textures[i].id);
 
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-
-
-            glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-
-            //shader.SetInt(("material." + name + number).c_str(), i);
-            glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-            glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            glBindTexture(GL_TEXTURE_2D, textures[0].id);
+            shader.SetInt("uAlbedoMap", 0);
         }
     }
 
@@ -193,6 +209,8 @@ void Mesh::Draw(Shader& shader, bool wireframeActive)
     // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    CheckOpenGLError("drawing elements");
+
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);

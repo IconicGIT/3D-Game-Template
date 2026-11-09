@@ -39,6 +39,9 @@
     <ClCompile Include="Source\Model.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\OpenGLDebug.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h" />
@@ -105,6 +108,9 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Source\vertex.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\OpenGLDebug.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>

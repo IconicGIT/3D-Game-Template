@@ -1,5 +1,6 @@
 #include "Shader.h"
 #include "App.h"
+#include "OpenGLDebug.h"
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
@@ -8,6 +9,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 
 void Shader::Set(const char* vertexPath, const char* fragmentPath)
 {
+    uniformLocations.clear();
+
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -49,6 +52,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);
     glCompileShader(vertex);
+    CheckOpenGLError("Compiling vertex shader");
+
     // print compile errors if any
     glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -63,6 +68,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     fragment = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragment, 1, &fShaderCode, NULL);
     glCompileShader(fragment);
+    CheckOpenGLError("Compiling fragment shader");
+
     // print compile errors if any
     glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
     if (!success)
@@ -77,6 +84,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
+    CheckOpenGLError("linking shaders to program");
+
     // print linking errors if any
     glGetProgramiv(ID, GL_LINK_STATUS, &success);
     if (!success)
@@ -85,6 +94,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
         //App->ui->AppendToOutput(DEBUG_LOG("ERROR::SHADER::PROGRAM::LINKING_FAILED"));
         //App->ui->AppendToOutput(DEBUG_LOG("%s", infoLog));
     }
+
+    valid = success;
 
     // delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
@@ -100,22 +111,84 @@ void Shader::Unuse()
     glUseProgram(0);
 }
 
-void Shader::SetBool(const std::string& name, bool value) const
-{
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
-}
-
 void Shader::SetInt(const std::string& name, int value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    const GLint location = GetUniformLocation(name);
+
+    if (location != -1)
+    {
+        glUniform1i(location, value);
+
+    }
+    else DEBUG_LOG("Uniform not found or inactive: %s", name.c_str());
+
 }
+
+void Shader::SetBool(const std::string& name, bool value) const
+{
+    SetInt(name, value);
+}
+
+
 
 void Shader::SetFloat(const std::string& name, float value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    const GLint location = GetUniformLocation(name);
+
+    if (location != -1)
+    {
+        glUniform1f(location, value);
+    }
+    else DEBUG_LOG("Uniform not found or inactive: %s", name.c_str());
+
 }
 
-void Shader::SetMat4x4(const std::string& name, mat4x4 value) const
+void Shader::SetMat4x4(const std::string& name, const mat4x4& value) const
 {
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, false, &value);
+    const GLint location = GetUniformLocation(name);
+
+    if (location != -1)
+    {
+        glUniformMatrix4fv(location, 1, GL_FALSE, &value);
+    }
+    else DEBUG_LOG("Uniform not found or inactive: %s", name.c_str());
+
+}
+
+void Shader::SetVec4(const std::string& name, const vec4& value) const
+{
+    const GLint location = GetUniformLocation(name);
+
+    if (location != -1)
+    {
+        glUniform4f(location, value.x, value.y, value.z, value.w);
+    }
+    else DEBUG_LOG("Uniform not found or inactive: %s", name.c_str());
+
+}
+
+void Shader::SetTexture(const std::string& name, int textureUnit)
+{
+    SetInt(name, textureUnit);
+}
+
+bool Shader::IsValid() const
+{
+    return valid;
+}
+
+GLint Shader::GetUniformLocation(const std::string& name) const
+{
+    const auto iterator = uniformLocations.find(name);
+
+    if (iterator != uniformLocations.end())
+    {
+        return iterator->second;
+    }
+
+    const GLint location = glGetUniformLocation(ID, name.c_str());
+
+    uniformLocations.emplace(name, location);
+
+    return location;
 }

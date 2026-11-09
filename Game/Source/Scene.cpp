@@ -117,9 +117,9 @@ bool Scene::Update(float dt)
 	mat4x4 view = app->camera3D->GetViewMatrix();
 	mat4x4 model = IdentityMatrix;
 
-	tempShader->SetMat4x4("projection", proj);
-	tempShader->SetMat4x4("view", view);
-	tempShader->SetMat4x4("model", model);
+	tempShader->SetMat4x4("uProjection", proj);
+	tempShader->SetMat4x4("uView", view);
+	tempShader->SetMat4x4("uModel", model);
 
 
 	tempModel->Draw(*tempShader, false);

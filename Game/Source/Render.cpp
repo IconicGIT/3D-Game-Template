@@ -152,29 +152,29 @@ bool Render::PreUpdate()
 	}
 	else glDisable(GL_CULL_FACE);
 
-	if (attributes.Lightning == true)
-	{
-		glEnable(GL_LIGHTING);
-	}
-	else glDisable(GL_LIGHTING);
+	//if (attributes.Lightning == true)
+	//{
+	//	glEnable(GL_LIGHTING);
+	//}
+	//else glDisable(GL_LIGHTING);
 
-	if (attributes.Color_Materials == true)
-	{
-		glEnable(GL_COLOR_MATERIAL);
-	}
-	else glDisable(GL_COLOR_MATERIAL);
+	//if (attributes.Color_Materials == true)
+	//{
+	//	glEnable(GL_COLOR_MATERIAL);
+	//}
+	//else glDisable(GL_COLOR_MATERIAL);
 
-	if (attributes.Front == true)
-	{
-		glEnable(GL_FRONT);
-	}
-	else glDisable(GL_FRONT);
+	//if (attributes.Front == true)
+	//{
+	//	glEnable(GL_FRONT);
+	//}
+	//else glDisable(GL_FRONT);
 
-	if (attributes.AmbientOclussion == true)
-	{
-		glEnable(GL_AMBIENT);
-	}
-	else glDisable(GL_AMBIENT);
+	//if (attributes.AmbientOclussion == true)
+	//{
+	//	glEnable(GL_AMBIENT);
+	//}
+	//else glDisable(GL_AMBIENT);
 
 	if (attributes.Wireframe == true)
 	{

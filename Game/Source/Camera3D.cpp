@@ -54,7 +54,7 @@ bool Camera3D::Update(float dt)
 
 	//Position Movement
 	vec3 newPos(0, 0, 0);
-	float speed = 20.0f * dt;
+	float speed = 10.0f * dt;
 	if (app->input->GetKey(SDL_SCANCODE_LSHIFT) == KEY_REPEAT)
 		speed = 50.0f * dt;
 
