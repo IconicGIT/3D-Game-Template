@@ -9,7 +9,6 @@
 #include <sstream>
 #include <iostream>
 #include <unordered_map>
-#include <string>
 
 class Shader
 {
@@ -34,7 +33,7 @@ public:
     void SetMat4x4(const std::string& name, const mat4x4& value) const;
     void SetVec4(const std::string& name, const vec4& value) const;
 
-    void SetTexture(const std::string& name, int);
+    void SetTexture(const std::string& name, int) const;
     bool IsValid() const;
 
 

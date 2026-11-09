@@ -70,6 +70,12 @@ bool Scene::Start()
 
 	cube = par_shapes_create_icosahedron();
 	tempShader = new Shader("Assets/Shaders/default.vertex", "Assets/Shaders/default.fragment");
+
+	if (!tempShader->IsValid()) {
+		DEBUG_LOG("Default shader is invalid");
+		return false;
+	}
+
 	tempTexture = LoadTexture("Assets/Textures/checker_pattern.png");
 	mesh = new Mesh(cube->points, cube->npoints, cube->triangles, cube->ntriangles);
 	mesh->textures.push_back(tempTexture);
@@ -90,41 +96,21 @@ bool Scene::PreUpdate()
 bool Scene::Update(float dt)
 {
 
-	/*DrawParShapesMesh(cube);*/
-
-	//glDisable(GL_LIGHTING);
-	////glDisable(GL_CULL_FACE);
-
-	////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//glColor3f(1.0f, 0.0f, 1.0f);
-
-	//glPushMatrix();
-
-	//// Centra el cubo y lo coloca delante de la cámara.
-	//glTranslatef(-0.5f, -0.5f, -5.0f);
-
-	//DrawParShapesMesh(cube);
-
-	//glPopMatrix();
 
 	//tempShader->Use();
-	//mesh->Draw(*tempShader);
+
+	//mat4x4 proj = app->render->projectionMatrix;
+	//mat4x4 view = app->camera3D->GetViewMatrix();
+	//mat4x4 model = IdentityMatrix;
+
+	//tempShader->SetMat4x4("uProjection", proj);
+	//tempShader->SetMat4x4("uView", view);
+	//tempShader->SetMat4x4("uModel", model);
+
+
+	//tempModel->Draw(*tempShader, false);
+
 	//tempShader->Unuse();
-
-	tempShader->Use();
-
-	mat4x4 proj = app->render->projectionMatrix;
-	mat4x4 view = app->camera3D->GetViewMatrix();
-	mat4x4 model = IdentityMatrix;
-
-	tempShader->SetMat4x4("uProjection", proj);
-	tempShader->SetMat4x4("uView", view);
-	tempShader->SetMat4x4("uModel", model);
-
-
-	tempModel->Draw(*tempShader, false);
-
-	tempShader->Unuse();
 
 
 	return true;

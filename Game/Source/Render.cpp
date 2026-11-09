@@ -43,9 +43,6 @@ bool Render::Awake(pugi::xml_node& config)
 
 
 
-	//Initialize Projection Matrix
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 
 	//Check for error
 	GLenum error = glGetError();
@@ -54,10 +51,6 @@ bool Render::Awake(pugi::xml_node& config)
 		DEBUG_LOG("Error initializing OpenGL! %s\n", error);
 		ret = false;
 	}
-
-	//Initialize Modelview Matrix
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 	//Check for error
 	error = glGetError();
@@ -122,7 +115,9 @@ bool Render::Awake(pugi::xml_node& config)
 // Called before the first frame
 bool Render::Start()
 {
-	DEBUG_LOG("render start");
+	//DEBUG_LOG("render start");
+	projectionMatrix = perspective(fov, (float)app->win->width / (float)app->win->height, 0.125f, 512.0f);
+
 	// back background
 
 	return true;
@@ -133,10 +128,6 @@ bool Render::PreUpdate()
 {
 	//clear
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(&app->camera3D->GetViewMatrix());
-
 
 	//View Modes
 
@@ -152,45 +143,14 @@ bool Render::PreUpdate()
 	}
 	else glDisable(GL_CULL_FACE);
 
-	//if (attributes.Lightning == true)
-	//{
-	//	glEnable(GL_LIGHTING);
-	//}
-	//else glDisable(GL_LIGHTING);
-
-	//if (attributes.Color_Materials == true)
-	//{
-	//	glEnable(GL_COLOR_MATERIAL);
-	//}
-	//else glDisable(GL_COLOR_MATERIAL);
-
-	//if (attributes.Front == true)
-	//{
-	//	glEnable(GL_FRONT);
-	//}
-	//else glDisable(GL_FRONT);
-
-	//if (attributes.AmbientOclussion == true)
-	//{
-	//	glEnable(GL_AMBIENT);
-	//}
-	//else glDisable(GL_AMBIENT);
-
 	if (attributes.Wireframe == true)
 	{
 		glPolygonMode(GL_FRONT, GL_LINE);
 	}
 	else glPolygonMode(GL_FRONT, GL_FILL);
 
-	glViewport(0, 0, app->win->width, app->win->height);
 
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	projectionMatrix = perspective(fov, (float)app->win->width / (float)app->win->height, 0.125f, 512.0f);
-	glLoadMatrixf(&projectionMatrix);
-
-	glMatrixMode(GL_MODELVIEW);
 
 	return true;
 }
@@ -220,13 +180,6 @@ bool Render::CleanUp()
 void Render::OnResize(int width, int height)
 {
 	glViewport(0, 0, width, height);
-
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	projectionMatrix = perspective(fov, (float)width / (float)height, 0.125f, 512.0f);
-	glLoadMatrixf(&projectionMatrix);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 }

@@ -38,7 +38,7 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     catch (std::ifstream::failure e)
     {
         //std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-        //app->ui->AppendToOutput(DEBUG_LOG("FILE_NOT_SUCCESFULLY_READ"));
+        DEBUG_LOG("FILE_NOT_SUCCESFULLY_READ");
     }
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
@@ -60,8 +60,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     {
         glGetShaderInfoLog(vertex, 512, NULL, infoLog);
         //std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-        //App->ui->AppendToOutput(DEBUG_LOG("ERROR::SHADER::VERTEX::COMPILATION_FAILED"));
-        //App->ui->AppendToOutput(DEBUG_LOG("%s", infoLog));
+        DEBUG_LOG("ERROR::SHADER::VERTEX::COMPILATION_FAILED");
+        DEBUG_LOG("%s", infoLog);
     };
 
     // similiar for Fragment Shader
@@ -75,8 +75,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetShaderInfoLog(fragment, 512, NULL, infoLog);
-        //App->ui->AppendToOutput(DEBUG_LOG("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED"));
-        //App->ui->AppendToOutput(DEBUG_LOG("%s", infoLog));
+        DEBUG_LOG("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED");
+        DEBUG_LOG("%s", infoLog);
     }
 
     // shader Program
@@ -91,8 +91,8 @@ void Shader::Set(const char* vertexPath, const char* fragmentPath)
     if (!success)
     {
         glGetProgramInfoLog(ID, 512, NULL, infoLog);
-        //App->ui->AppendToOutput(DEBUG_LOG("ERROR::SHADER::PROGRAM::LINKING_FAILED"));
-        //App->ui->AppendToOutput(DEBUG_LOG("%s", infoLog));
+        DEBUG_LOG("ERROR::SHADER::PROGRAM::LINKING_FAILED");
+        DEBUG_LOG("%s", infoLog);
     }
 
     valid = success;
@@ -167,7 +167,7 @@ void Shader::SetVec4(const std::string& name, const vec4& value) const
 
 }
 
-void Shader::SetTexture(const std::string& name, int textureUnit)
+void Shader::SetTexture(const std::string& name, int textureUnit) const
 {
     SetInt(name, textureUnit);
 }

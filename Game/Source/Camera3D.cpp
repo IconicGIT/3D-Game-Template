@@ -38,7 +38,7 @@ bool Camera3D::Awake()
 // Called before the first frame
 bool Camera3D::Start()
 {
-
+	Position = vec3(0, 1, 10);
 	return true;
 }
 

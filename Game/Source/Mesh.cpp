@@ -151,7 +151,7 @@ void Mesh::Draw(Shader& shader, bool wireframeActive)
     
 
     // uTint usa Blanco por defecto
-    glUniform4f(glGetUniformLocation(shader.ID, "uTint"),1.f, 1.f, 1.f, 1.f);
+    shader.SetVec4("uTint", vec4(1.f, 1.f, 1.f, 1.f));
 
 
     //Draw textures
@@ -183,7 +183,7 @@ void Mesh::Draw(Shader& shader, bool wireframeActive)
 
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, textures[0].id);
-            shader.SetInt("uAlbedoMap", 0);
+            shader.SetTexture("uAlbedoMap", 0);
         }
     }
 
@@ -217,23 +217,13 @@ void Mesh::Draw(Shader& shader, bool wireframeActive)
 
     
     //deactivate Textures
-    if (!textures.empty())
+    for (unsigned int i = 0; i < textures.size(); ++i)
     {
-        for (unsigned int i = 0; i < textures.size(); i++)
-        {
-            std::string number;
-            std::string name = textures[i].type;
-            if (name == "texture_diffuse")
-                number = std::to_string(diffuseNr++);
-            else if (name == "texture_specular")
-                number = std::to_string(specularNr++);
-
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-            glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-        }
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
+
+    glActiveTexture(GL_TEXTURE0);
 
 }
 
