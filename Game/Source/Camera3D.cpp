@@ -224,3 +224,8 @@ const mat4x4& Camera3D::GetViewMatrix() const
 {
 	return ViewMatrix;
 }
+
+const vec3& Camera3D::GetPosition() const noexcept
+{
+	return Position;
+}

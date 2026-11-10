@@ -9,6 +9,7 @@
 
 #include "Glew/include/GL/glew.h"
 #include "OpenGLDebug.h"
+#include <algorithm>
 
 #define VSYNC true
 
@@ -151,15 +152,28 @@ bool Render::Update(float dt)
 bool Render::PostUpdate()
 {
 	//present drawn elements
+	const bool renderSucceeded = Flush();
+
 	SDL_GL_SwapWindow(app->win->window);
-	return true;
+
+	return renderSucceeded;
 }
 
 // Called before quitting
 bool Render::CleanUp()
 {
 	DEBUG_LOG("Destroying SDL render");
-	SDL_GL_DeleteContext(glContext);
+	DEBUG_LOG("Destroying SDL render");
+
+	opaqueCommands.clear();
+	transparentCommands.clear();
+
+	if (glContext != nullptr)
+	{
+		SDL_GL_DeleteContext(glContext);
+		glContext = nullptr;
+	}
+
 	return true;
 }
 
@@ -171,7 +185,104 @@ void Render::OnResize(int width, int height)
 
 }
 
-bool Render::DrawMesh(
+void Render::BeginFrame()
+{
+	opaqueCommands.clear();
+	transparentCommands.clear();
+}
+
+bool Render::Submit(
+	const std::shared_ptr<Mesh>& mesh,
+	const std::shared_ptr<Material>& material,
+	const mat4x4& modelMatrix
+)
+{
+	if (!mesh)
+	{
+		DEBUG_LOG("Cannot submit render command: mesh is null");
+		return false;
+	}
+
+	if (!material)
+	{
+		DEBUG_LOG("Cannot submit render command: material is null");
+		return false;
+	}
+
+	const std::shared_ptr<Shader>& shader =
+		material->GetShader();
+
+	if (!shader || !shader->IsValid())
+	{
+		DEBUG_LOG(
+			"Cannot submit render command: material shader is invalid"
+		);
+
+		return false;
+	}
+
+	RenderCommand command;
+
+	command.mesh = mesh;
+	command.material = material;
+	command.modelMatrix = modelMatrix;
+
+	const vec3 worldPosition =
+		modelMatrix.translation();
+
+	const vec3 cameraToObject =
+		worldPosition - app->camera3D->GetPosition();
+
+	command.distanceToCameraSquared =
+		length2(cameraToObject);
+
+	if (material->transparent)
+		transparentCommands.push_back(std::move(command));
+	else
+		opaqueCommands.push_back(std::move(command));
+
+	return true;
+}
+
+bool Render::Flush()
+{
+	SortCommands();
+
+	bool success = true;
+
+	for (const RenderCommand& command : opaqueCommands)
+	{
+		const bool drawSucceeded =
+			DrawMeshImmediate(
+				*command.mesh,
+				*command.material,
+				command.modelMatrix
+			);
+
+		if (!drawSucceeded)
+			success = false;
+	}
+
+	for (const RenderCommand& command : transparentCommands)
+	{
+		const bool drawSucceeded =
+			DrawMeshImmediate(
+				*command.mesh,
+				*command.material,
+				command.modelMatrix
+			);
+
+		if (!drawSucceeded)
+			success = false;
+	}
+
+	opaqueCommands.clear();
+	transparentCommands.clear();
+
+	return success;
+}
+
+bool Render::DrawMeshImmediate(
 	const Mesh& mesh,
 	const Material& material,
 	const mat4x4& modelMatrix
@@ -181,13 +292,7 @@ bool Render::DrawMesh(
 		material.GetShader();
 
 	if (!shader || !shader->IsValid())
-	{
-		DEBUG_LOG(
-			"Cannot draw mesh: invalid material shader"
-		);
-
 		return false;
-	}
 
 	ApplyMaterialState(material);
 
@@ -215,25 +320,34 @@ bool Render::DrawMesh(
 
 	glActiveTexture(GL_TEXTURE0);
 
+	GLuint albedoTexture = 0;
+
 	if (material.HasAlbedoMap())
 	{
-		glBindTexture(
-			GL_TEXTURE_2D,
-			material.GetAlbedoMap().id
-		);
+		albedoTexture =
+			material.GetAlbedoMap().id;
 	}
 	else
 	{
 		const Texture* defaultTexture =
 			app->tex->GetDefaultTexture();
 
-		glBindTexture(
-			GL_TEXTURE_2D,
-			defaultTexture != nullptr
-			? defaultTexture->id
-			: 0
-		);
+		if (defaultTexture == nullptr)
+		{
+			DEBUG_LOG(
+				"Cannot draw mesh: no albedo or default texture"
+			);
+
+			return false;
+		}
+
+		albedoTexture = defaultTexture->id;
 	}
+
+	glBindTexture(
+		GL_TEXTURE_2D,
+		albedoTexture
+	);
 
 	shader->SetTexture("uAlbedoMap", 0);
 
@@ -246,11 +360,75 @@ bool Render::DrawMesh(
 		nullptr
 	);
 
-	CheckOpenGLError("Render::DrawMesh");
+	CheckOpenGLError(
+		"Render::DrawMeshImmediate"
+	);
 
 	Mesh::Unbind();
 
 	return true;
+}
+void Render::SortCommands()
+{
+	std::stable_sort(
+		opaqueCommands.begin(),
+		opaqueCommands.end(),
+		[](const RenderCommand& left,
+			const RenderCommand& right)
+		{
+			const Material& leftMaterial =
+				*left.material;
+
+			const Material& rightMaterial =
+				*right.material;
+
+			const auto leftState =
+				leftMaterial.GetStateKey();
+
+			const auto rightState =
+				rightMaterial.GetStateKey();
+
+			if (leftState != rightState)
+				return leftState < rightState;
+
+			const GLuint leftShader =
+				leftMaterial.GetShader()->ID;
+
+			const GLuint rightShader =
+				rightMaterial.GetShader()->ID;
+
+			if (leftShader != rightShader)
+				return leftShader < rightShader;
+
+			const GLuint leftTexture =
+				leftMaterial.HasAlbedoMap()
+				? leftMaterial.GetAlbedoMap().id
+				: 0;
+
+			const GLuint rightTexture =
+				rightMaterial.HasAlbedoMap()
+				? rightMaterial.GetAlbedoMap().id
+				: 0;
+
+			if (leftTexture != rightTexture)
+				return leftTexture < rightTexture;
+
+			return left.mesh->GetVertexArray() <
+				right.mesh->GetVertexArray();
+		}
+
+	);
+
+	std::stable_sort(
+		transparentCommands.begin(),
+		transparentCommands.end(),
+		[](const RenderCommand& left,
+			const RenderCommand& right)
+		{
+			return left.distanceToCameraSquared >
+				right.distanceToCameraSquared;
+		}
+	);
 }
 
 void Render::ApplyMaterialState(

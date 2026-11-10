@@ -168,7 +168,7 @@ bool App::LoadConfig()
 void App::PrepareUpdate()
 {
 	ms_timer.Start();
-
+	render->BeginFrame();
 }
 
 // ---------------------------------------------

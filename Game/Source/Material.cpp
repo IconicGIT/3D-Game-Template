@@ -30,3 +30,17 @@ bool Material::HasAlbedoMap() const noexcept
 {
     return albedoMap.IsValid();
 }
+
+std::uint32_t Material::GetStateKey() const noexcept
+{
+    std::uint32_t key = 0;
+
+    key |= depthTest  ? 1u << 0 : 0;
+    key |= depthWrite ? 1u << 1 : 0;
+    key |= wireframe  ? 1u << 2 : 0;
+
+    key |=
+        static_cast<std::uint32_t>(cullMode) << 3;
+
+    return key;
+}

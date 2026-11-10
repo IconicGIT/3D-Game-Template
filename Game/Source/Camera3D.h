@@ -42,6 +42,7 @@ public:
 
 	const mat4x4& GetViewMatrix() const;
 
+	const vec3& GetPosition() const noexcept;
 private:
 	SDL_Texture* img;
 	mat4x4 ViewMatrix, ViewMatrixInverse;

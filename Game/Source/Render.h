@@ -6,6 +6,8 @@
 #include "glmath.h"	
 #include "Mesh.h"
 #include "Material.h"
+#include "RenderCommand.h"
+#include <vector>
 
 
 struct Gl_Attributes
@@ -45,11 +47,15 @@ public:
 
 	void OnResize(int width, int height);
 
-	bool DrawMesh(
-		const Mesh& mesh,
-		const Material& material,
+	void BeginFrame();
+
+	bool Submit(
+		const std::shared_ptr<Mesh>& mesh,
+		const std::shared_ptr<Material>& material,
 		const mat4x4& modelMatrix
 	);
+
+	bool Flush();
 
 public:
 	SDL_GLContext glContext;
@@ -62,6 +68,17 @@ private:
 	void ApplyMaterialState(
 		const Material& material
 	);
+
+	bool DrawMeshImmediate(
+		const Mesh& mesh,
+		const Material& material,
+		const mat4x4& modelMatrix
+	);
+
+	void SortCommands();
+
+	std::vector<RenderCommand> opaqueCommands;
+	std::vector<RenderCommand> transparentCommands;
 
 };
 

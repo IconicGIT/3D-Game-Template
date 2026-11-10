@@ -26,42 +26,33 @@ Model::Model(const char* path, App* app)
     LoadModel(path);
 }
 
-void Model::Draw(
+bool Model::Submit(
     Render& render,
     const mat4x4& modelMatrix
 ) const
 {
-    // Primera pasada: opacos.
+    bool success = true;
+
     for (const ModelPart& part : parts)
     {
         if (!part.mesh || !part.material)
+        {
+            success = false;
             continue;
+        }
 
-        if (part.material->transparent)
-            continue;
+        const bool submitted =
+            render.Submit(
+                part.mesh,
+                part.material,
+                modelMatrix
+            );
 
-        render.DrawMesh(
-            *part.mesh,
-            *part.material,
-            modelMatrix
-        );
+        if (!submitted)
+            success = false;
     }
 
-    // Segunda pasada: transparentes.
-    for (const ModelPart& part : parts)
-    {
-        if (!part.mesh || !part.material)
-            continue;
-
-        if (!part.material->transparent)
-            continue;
-
-        render.DrawMesh(
-            *part.mesh,
-            *part.material,
-            modelMatrix
-        );
-    }
+    return success;
 }
 
 bool Model::Set(const char* path)
@@ -71,21 +62,6 @@ bool Model::Set(const char* path)
 
     return LoadModel(path);
 }
-
-//void Model::Set(Model *model)
-//{
-//    for (Mesh m : model->meshes)
-//    {
-//        meshes.push_back(m);
-//    }
-//
-//    for (Texture  t : model->textures_loaded)
-//    {
-//        textures_loaded.push_back(t);
-//    }
-//
-//    directory = model->directory;
-//}
 
 void Model::Set(const Model& model)
 {

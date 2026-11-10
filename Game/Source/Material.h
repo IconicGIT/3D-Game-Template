@@ -31,6 +31,8 @@ public:
 
     bool HasAlbedoMap() const noexcept;
 
+    std::uint32_t GetStateKey() const noexcept;
+
 public:
     vec4 tint = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 

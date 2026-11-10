@@ -41,18 +41,20 @@ bool Textures::Awake(pugi::xml_node& config)
 bool Textures::Start()
 {
 	DEBUG_LOG("start textures");
-	bool ret = true;
 
+    imageExtensionsAccepted.push_back("png");
+    imageExtensionsAccepted.push_back("jpg");
+    imageExtensionsAccepted.push_back("bmp");
+    imageExtensionsAccepted.push_back("tga");
 
-	imageExtensionsAccepted.push_back("png");
-	imageExtensionsAccepted.push_back("jpg");
-	imageExtensionsAccepted.push_back("bmp");
-	imageExtensionsAccepted.push_back("tga");
-
-	app->tex->LoadFromPath("Assets/Textures/default_texture.png");
-
-
-	return ret;
+    if (!LoadFromPath(
+        "Assets/Textures/default_texture.png"
+    ))
+    {
+        DEBUG_LOG("Could not load default texture");
+        return false;
+    }
+	return true;
 }
 
 // Called before quitting

@@ -92,7 +92,7 @@ bool Scene::Update(float dt)
 
 	const mat4x4 modelMatrix = IdentityMatrix;
 
-	tempModel->Draw(
+	tempModel->Submit(
 		*app->render,
 		modelMatrix
 	);

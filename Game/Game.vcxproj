@@ -130,6 +130,7 @@
     <ClInclude Include="Source\ModuleTemplate.h" />
     <ClInclude Include="Source\OpenGLDebug.h" />
     <ClInclude Include="Source\Queue.h" />
+    <ClInclude Include="Source\RenderCommand.h" />
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\Audio.h" />
     <ClInclude Include="Source\Input.h" />

@@ -119,6 +119,9 @@
     <ClInclude Include="Source\Material.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\RenderCommand.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">

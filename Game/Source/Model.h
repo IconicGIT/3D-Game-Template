@@ -28,16 +28,13 @@ class Model
 public:
     Model(const char* path, App* app);
     
-    void Draw(Render& render, const mat4x4& modelMatrix) const;
+    bool Submit(
+        Render& render,
+        const mat4x4& modelMatrix
+    ) const;
 
     bool Set(const char* path);
     void Set(const Model& model);
-    //void Set(Model* model);
-
-    //std::vector<Mesh> GetMeshes() const
-    //{
-    //    return meshes;
-    //}
 
     std::string GetDirectory() const
     {
