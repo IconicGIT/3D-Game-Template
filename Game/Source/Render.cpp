@@ -2,11 +2,13 @@
 #include "Camera3D.h"
 #include "Window.h"
 #include "Render.h"
+#include "Textures.h"
 
 #include "Defs.h"
 #include "Log.h"
 
 #include "Glew/include/GL/glew.h"
+#include "OpenGLDebug.h"
 
 #define VSYNC true
 
@@ -36,7 +38,11 @@ bool Render::Awake(pugi::xml_node& config)
 
 	// Create OpenGL context
 	glContext = SDL_GL_CreateContext(app->win->window);
-	CHECK_ERROR(glContext != nullptr);
+	if (glContext == nullptr)
+	{
+		DEBUG_LOG("Could not create OpenGL context: %s", SDL_GetError());
+		return false;
+	}
 
 	// Init GLEW
 	CHECK_ERROR(glewInit() == GLEW_OK);
@@ -126,31 +132,12 @@ bool Render::Start()
 // Called each loop iteration
 bool Render::PreUpdate()
 {
-	//clear
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glDepthMask(GL_TRUE);
 
-	//View Modes
-
-	if (attributes.Depth_test == true)
-	{
-		glEnable(GL_DEPTH_TEST);
-	}
-	else glDisable(GL_DEPTH_TEST);
-
-	if (attributes.Cull_Face == true)
-	{
-		glEnable(GL_CULL_FACE);
-	}
-	else glDisable(GL_CULL_FACE);
-
-	if (attributes.Wireframe == true)
-	{
-		glPolygonMode(GL_FRONT, GL_LINE);
-	}
-	else glPolygonMode(GL_FRONT, GL_FILL);
-
-
-
+	glClear(
+		GL_COLOR_BUFFER_BIT |
+		GL_DEPTH_BUFFER_BIT
+	);
 
 	return true;
 }
@@ -182,4 +169,135 @@ void Render::OnResize(int width, int height)
 	glViewport(0, 0, width, height);
 	projectionMatrix = perspective(fov, (float)width / (float)height, 0.125f, 512.0f);
 
+}
+
+bool Render::DrawMesh(
+	const Mesh& mesh,
+	const Material& material,
+	const mat4x4& modelMatrix
+)
+{
+	const std::shared_ptr<Shader>& shader =
+		material.GetShader();
+
+	if (!shader || !shader->IsValid())
+	{
+		DEBUG_LOG(
+			"Cannot draw mesh: invalid material shader"
+		);
+
+		return false;
+	}
+
+	ApplyMaterialState(material);
+
+	shader->Use();
+
+	shader->SetMat4x4(
+		"uProjection",
+		projectionMatrix
+	);
+
+	shader->SetMat4x4(
+		"uView",
+		app->camera3D->GetViewMatrix()
+	);
+
+	shader->SetMat4x4(
+		"uModel",
+		modelMatrix
+	);
+
+	shader->SetVec4(
+		"uTint",
+		material.tint
+	);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	if (material.HasAlbedoMap())
+	{
+		glBindTexture(
+			GL_TEXTURE_2D,
+			material.GetAlbedoMap().id
+		);
+	}
+	else
+	{
+		const Texture* defaultTexture =
+			app->tex->GetDefaultTexture();
+
+		glBindTexture(
+			GL_TEXTURE_2D,
+			defaultTexture != nullptr
+			? defaultTexture->id
+			: 0
+		);
+	}
+
+	shader->SetTexture("uAlbedoMap", 0);
+
+	mesh.Bind();
+
+	glDrawElements(
+		GL_TRIANGLES,
+		mesh.GetIndexCount(),
+		GL_UNSIGNED_INT,
+		nullptr
+	);
+
+	CheckOpenGLError("Render::DrawMesh");
+
+	Mesh::Unbind();
+
+	return true;
+}
+
+void Render::ApplyMaterialState(
+	const Material& material
+)
+{
+	if (material.depthTest)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+
+	glDepthMask(
+		material.depthWrite ? GL_TRUE : GL_FALSE
+	);
+
+	switch (material.cullMode)
+	{
+	case CullMode::None:
+		glDisable(GL_CULL_FACE);
+		break;
+
+	case CullMode::Back:
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		break;
+
+	case CullMode::Front:
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		break;
+	}
+
+	glPolygonMode(
+		GL_FRONT_AND_BACK,
+		material.wireframe ? GL_LINE : GL_FILL
+	);
+
+	if (material.transparent)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(
+			GL_SRC_ALPHA,
+			GL_ONE_MINUS_SRC_ALPHA
+		);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
 }

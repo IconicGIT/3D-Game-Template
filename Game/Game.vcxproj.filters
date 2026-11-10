@@ -42,6 +42,9 @@
     <ClCompile Include="Source\OpenGLDebug.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Material.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h" />
@@ -112,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="Source\OpenGLDebug.h">
       <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Material.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

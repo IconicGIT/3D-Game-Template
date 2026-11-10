@@ -1,14 +1,51 @@
 #include "Shader.h"
 #include "App.h"
 #include "OpenGLDebug.h"
+#include <utility>
 
 Shader::Shader(const char* vertexPath, const char* fragmentPath)
 {
     Set(vertexPath, fragmentPath);
 }
 
+Shader::~Shader()
+{
+    if (ID != 0)
+        glDeleteProgram(ID);
+}
+
+
+Shader::Shader(Shader&& other) noexcept
+    : ID(std::exchange(other.ID, 0)),
+    valid(std::exchange(other.valid, false)),
+    uniformLocations(std::move(other.uniformLocations))
+{
+}
+
+Shader& Shader::operator=(Shader&& other) noexcept
+{
+    if (this == &other)
+        return *this;
+
+    if (ID != 0)
+        glDeleteProgram(ID);
+
+    ID = std::exchange(other.ID, 0);
+    valid = std::exchange(other.valid, false);
+    uniformLocations = std::move(other.uniformLocations);
+
+    return *this;
+}
+
 void Shader::Set(const char* vertexPath, const char* fragmentPath)
 {
+    if (ID != 0)
+    {
+        glDeleteProgram(ID);
+        ID = 0;
+    }
+
+    valid = false;
     uniformLocations.clear();
 
     // 1. retrieve the vertex/fragment source code from filePath

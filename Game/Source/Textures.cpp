@@ -49,6 +49,8 @@ bool Textures::Start()
 	imageExtensionsAccepted.push_back("bmp");
 	imageExtensionsAccepted.push_back("tga");
 
+	app->tex->LoadFromPath("Assets/Textures/default_texture.png");
+
 
 	return ret;
 }
@@ -57,14 +59,16 @@ bool Textures::Start()
 bool Textures::CleanUp()
 {
 	DEBUG_LOG("Freeing textures and Image library");
-	ListItem<SDL_Texture*>* item;
-
-	for(item = textures.start; item != NULL; item = item->next)
+	for (Texture& texture : allTextures)
 	{
-		SDL_DestroyTexture(item->data);
+		if (texture.id != 0)
+		{
+			glDeleteTextures(1, &texture.id);
+			texture.id = 0;
+		}
 	}
 
-	textures.Clear();
+	allTextures.clear();
 	IMG_Quit();
 	return true;
 }
@@ -88,23 +92,6 @@ bool Textures::CleanUp()
 //	return texture;
 //}
 
-// Unload texture
-bool Textures::UnLoad(SDL_Texture* texture)
-{
-	ListItem<SDL_Texture*>* item;
-
-	for(item = textures.start; item != NULL; item = item->next)
-	{
-		if(texture == item->data)
-		{
-			SDL_DestroyTexture(item->data);
-			textures.Del(item);
-			return true;
-		}
-	}
-
-	return false;
-}
 
 // Translate a surface into a texture
 //SDL_Texture* const Textures::LoadSurface(SDL_Surface* surface) --> crear texture de opengl
@@ -129,7 +116,7 @@ void Textures::GetSize(const SDL_Texture* texture, uint& width, uint& height) co
 	SDL_QueryTexture((SDL_Texture*)texture, NULL, NULL, (int*) &width, (int*) &height);
 }
 
-bool Textures::LoadFromPath(char* fileDir)
+bool Textures::LoadFromPath(const char* fileDir)
 {
 	bool ret = false;
 	std::string sDraggedFileDir = fileDir;
@@ -184,13 +171,27 @@ bool Textures::LoadFromPath(char* fileDir)
 			{
 				Texture tex = LoadTexture(fileDir);
 
-				tex.name = name;
+				if (!tex.IsValid())
+				{
+					DEBUG_LOG(
+						"Could not load texture [%s]. [path: %s]",
+						name.c_str(),
+						fileDir
+					);
 
-				//Save_Texture(&tex);
+					return false;
+				}
+
+				tex.name = name;
 				allTextures.push_back(tex);
 
 				ret = true;
-				DEBUG_LOG("Loaded Texture [%s]. [path: %s]", name.c_str(), fileDir);
+
+				DEBUG_LOG(
+					"Loaded Texture [%s]. [path: %s]",
+					name.c_str(),
+					fileDir
+				);
 			}
 			else
 			{
@@ -208,4 +209,26 @@ bool Textures::LoadFromPath(char* fileDir)
 
 
 	return ret;
+}
+
+const Texture* Textures::GetDefaultTexture() const noexcept
+{
+	for (const Texture& texture : allTextures)
+	{
+		if (texture.name == "default_texture.png")
+			return &texture;
+	}
+
+	return nullptr;
+}
+
+const Texture* Textures::FindTexture(const std::string& name) const noexcept
+{
+	for (const Texture& texture : allTextures)
+	{
+		if (texture.name == name)
+			return &texture;
+	}
+
+	return nullptr;
 }

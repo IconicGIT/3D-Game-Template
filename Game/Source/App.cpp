@@ -266,17 +266,59 @@ bool App::PostUpdate()
 // Called before quitting
 bool App::CleanUp()
 {
-	bool ret = true;
-	ListItem<Module*>* item;
-	item = modules.end;
+	//bool ret = true;
+	//ListItem<Module*>* item;
+	//item = modules.end;
 
-	while(item != NULL && ret == true)
+	//while(item != NULL && ret == true)
+	//{
+	//	ret = item->data->CleanUp();
+	//	item = item->prev;
+	//}
+
+	//return ret;
+
+	bool allCleanUpsSucceeded = true;
+
+	// Primero libera los módulos que pueden poseer recursos OpenGL.
+	for (ListItem<Module*>* item = modules.end;
+		item != nullptr;
+		item = item->prev)
 	{
-		ret = item->data->CleanUp();
-		item = item->prev;
+		Module* module = item->data;
+
+		// Estos dos necesitan un orden especial.
+		if (module == render || module == win)
+			continue;
+
+		const bool moduleSucceeded = module->CleanUp();
+
+		if (!moduleSucceeded)
+		{
+			DEBUG_LOG(
+				"CleanUp failed for module: %s",
+				module->name.GetString()
+			);
+
+			allCleanUpsSucceeded = false;
+		}
 	}
 
-	return ret;
+	// Destruye el contexto después de liberar los recursos GPU.
+	if (!render->CleanUp())
+	{
+		DEBUG_LOG("CleanUp failed for Render");
+		allCleanUpsSucceeded = false;
+	}
+
+	// Destruye la ventana después del contexto OpenGL.
+	if (!win->CleanUp())
+	{
+		DEBUG_LOG("CleanUp failed for Window");
+		allCleanUpsSucceeded = false;
+	}
+
+	return allCleanUpsSucceeded;
 }
 
 // ---------------------------------------

@@ -3,50 +3,94 @@
 #include "TextureLoader.h"
 #include "Log.h"
 
-Texture LoadTexture(std::string file_path)
+Texture LoadTexture(const std::string& file_path)
 {
-	unsigned int texture;
-
+	GLuint texture = 0;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(
+		GL_TEXTURE_2D,
+		GL_TEXTURE_MIN_FILTER,
+		GL_LINEAR_MIPMAP_LINEAR
+	);
+	glTexParameteri(
+		GL_TEXTURE_2D,
+		GL_TEXTURE_MAG_FILTER,
+		GL_LINEAR
+	);
+	
+	int width = 0;
+	int height = 0;
+	int nrChannels = 0;
 
-	// load image, create texture and generate mipmaps
-	int width, height, nrChannels;
 	stbi_set_flip_vertically_on_load(true);
 
-	// load and generate the texture
-	unsigned char* data = stbi_load(file_path.c_str(), &width, &height, &nrChannels, 0);
-	/*for (size_t i = 0; i < width * height * 3; i++)
-	{
-		DEBUG_LOG("%i ", data[i]);
-	}*/
-	if (data)
-	{
-		if (nrChannels == 3)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
-		if (nrChannels == 4)
-		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		}
+	unsigned char* data = stbi_load(
+		file_path.c_str(),
+		&width,
+		&height,
+		&nrChannels,
+		0
+	);
 
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
+	if (data == nullptr)
 	{
-		std::cout << "Failed to load texture " << file_path << std::endl;
+		DEBUG_LOG(
+			"Failed to load texture: %s",
+			file_path.c_str()
+		);
+
+		glDeleteTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return Texture{};
 	}
 
+	GLenum format = GL_RGB;
+
+	if (nrChannels != 1 &&
+		nrChannels != 3 &&
+		nrChannels != 4)
+	{
+		DEBUG_LOG("Unsupported channel count: %i", nrChannels);
+
+		stbi_image_free(data);
+		glDeleteTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		return Texture{};
+	}
+
+	if (nrChannels == 1)
+		format = GL_RED;
+	else if (nrChannels == 3)
+		format = GL_RGB;
+	else if (nrChannels == 4)
+		format = GL_RGBA;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		format,
+		width,
+		height,
+		0,
+		format,
+		GL_UNSIGNED_BYTE,
+		data
+	);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
 	stbi_image_free(data);
-	
+	glBindTexture(GL_TEXTURE_2D, 0);
+
 	Texture tex;
 	tex.id = texture;
 	tex.path = file_path;
@@ -55,8 +99,7 @@ Texture LoadTexture(std::string file_path)
 	tex.height = height;
 	tex.nrChannels = nrChannels;
 
-
-return tex;
+	return tex;
 }
 
 
@@ -103,13 +146,17 @@ std::vector<Texture> LoadSlicedTexture(std::string file_path, int horizontalAmou
 					{
 						if (nrChannels == 3)
 						{
+							glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, sectionWidth, sectionHeight * horizontalAmount, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 							glTexSubImage2D(GL_TEXTURE_2D, 0, sectionX, sectionY, sectionWidth, sectionHeight * horizontalAmount, GL_RGB, GL_UNSIGNED_BYTE, data);
+							glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 						}
 						if (nrChannels == 4)
 						{
+							glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 							glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sectionWidth, sectionHeight * horizontalAmount, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 							glTexSubImage2D(GL_TEXTURE_2D, 0, sectionX, sectionY, sectionWidth, sectionHeight * horizontalAmount, GL_RGBA, GL_UNSIGNED_BYTE, data);
+							glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 						}
 
 						glGenerateMipmap(GL_TEXTURE_2D);

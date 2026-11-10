@@ -2,7 +2,6 @@
 #define __SCENE_H__
 
 #include "Module.h"
-#include "par_shapes.h"
 #include "Mesh.h"
 #include "Texture.h"
 #include "TextureLoader.h"
@@ -37,14 +36,10 @@ public:
 	// Called before quitting
 	bool CleanUp();
 
-	par_shapes_mesh* cube = nullptr;
-	Mesh* mesh = nullptr;
-
 private:
-	SDL_Texture* img;
-	Shader* tempShader;
-	Texture tempTexture;
-	Model* tempModel;
+
+	std::unique_ptr<Model> tempModel;
+	std::shared_ptr<Shader> tempShader;
 
 };
 

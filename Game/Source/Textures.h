@@ -30,25 +30,25 @@ public:
 	// Load Texture
 	//SDL_Texture* const Load(const char* path);
 	//SDL_Texture* const LoadSurface(SDL_Surface* surface);
-	bool UnLoad(SDL_Texture* texture);
 	void GetSize(const SDL_Texture* texture, uint& width, uint& height) const;
 
 public:
 
-	List<SDL_Texture*> textures;
+	
 	std::vector<Texture> allTextures;
 
-	std::vector<Texture> GetAllTextures() const
+	const std::vector<Texture>& GetAllTextures() const noexcept
 	{
 		return allTextures;
 	}
 
-	bool LoadFromPath(char* fileDir);
+	bool LoadFromPath(const char* fileDir);
+	const Texture* GetDefaultTexture() const noexcept;
+	const Texture* FindTexture(const std::string& name) const noexcept;
 
 private:
 
 	std::vector<std::string> imageExtensionsAccepted;
-
 
 };
 

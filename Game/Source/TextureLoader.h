@@ -7,7 +7,7 @@
 #include "Texture.h"
 #include <vector>
 
-Texture LoadTexture(std::string file_path);
+Texture LoadTexture(const std::string& file_path);
 
 std::vector<Texture> LoadSlicedTexture(std::string file_path, int horizontalDivisions, int vertialDivisions, int amount);
 

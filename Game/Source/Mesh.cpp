@@ -1,269 +1,185 @@
 #include "Mesh.h"
-#include "Log.h"
 #include "OpenGLDebug.h"
 
-//Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
-//{
-//    this->vertices = vertices;
-//    this->indices = indices;
-//    this->textures = textures;
-//    this->renderer = nullptr;
-//    SetupMesh();
-//}
+#include <limits>
+#include <stdexcept>
+#include <utility>
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices)
 {
-    this->vertices = vertices;
-    this->indices = indices;
-    this->textures = textures;
-    //this->renderer = nullptr;
-    SetupMesh();
+    Upload(vertices, indices);
 }
 
-Mesh::Mesh(float* points, int nPoints, uint16_t* indices, int nIndices)
+Mesh::Mesh(const float* points, std::size_t pointCount, const std::uint16_t* indices, std::size_t triangleCount)
 {
+    std::vector<Vertex> vertices;
+    std::vector<std::uint32_t> _indices;
 
-    for (size_t i = 0; i < nPoints * 3; i += 3)
-    {
-        DEBUG_LOG("point (%f,%f,%f)", points[i], points[i+1], points[i+2]);
-    }
-
-
-
-    for (int i = 0; i < nPoints * 3; i += 3)
+    for (std::size_t i = 0; i < pointCount * 3; i += 3)
     {
         vec3 v = vec3(points[i], points[i+1], points[i+2]);
 
         Vertex vertex = Vertex(v);
 
-        this->vertices.push_back(vertex);
+        vertices.push_back(vertex);
     }
 
 
-    for (int i = 0; i < nIndices * 3; i++)
+    for (std::size_t i = 0; i < triangleCount * 3; i++)
     {
         int index = indices[i];
-        this->indices.push_back(index);
-    }
-
-    for (Vertex i : this->vertices)
-    {
-        DEBUG_LOG("vertex: (%f,%f,%f)", i.Position.x, i.Position.y, i.Position.z);
-    }
-
-    for (int i : this->indices)
-    {
-        DEBUG_LOG("index: %i", i);
+        _indices.push_back(index);
     }
 
 
-    SetupMesh();
+    Upload(vertices, _indices);
+
 }
 
-void Mesh::SetupMesh()
+void Mesh::Upload(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices)
 {
-    //set mesh
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    if (vertices.empty())
+        throw std::invalid_argument("Mesh requires vertices");
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    if (indices.empty())
+        throw std::invalid_argument("Mesh requires indices");
 
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
-    CheckOpenGLError("pushing mesh vertices");
+    if (indices.size() >
+        static_cast<std::size_t>(std::numeric_limits<GLsizei>::max()))
+    {
+        throw std::overflow_error("Mesh has too many indices");
+    }
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    indexCount = static_cast<GLsizei>(indices.size());
 
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
 
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int),
-        &indices[0], GL_STATIC_DRAW);
-    CheckOpenGLError("pushing mesh indices");
+    glBindVertexArray(vao);
 
-    // vertex positions
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        vertices.size() * sizeof(Vertex),
+        vertices.data(),
+        GL_STATIC_DRAW
+    );
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        indices.size() * sizeof(std::uint32_t),
+        indices.data(),
+        GL_STATIC_DRAW
+    );
+
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-    // vertex normals
+    glVertexAttribPointer(
+        0,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(Vertex),
+        reinterpret_cast<void*>(offsetof(Vertex, Position))
+    );
+
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
-    // vertex texture coords
+    glVertexAttribPointer(
+        1,
+        3,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(Vertex),
+        reinterpret_cast<void*>(offsetof(Vertex, Normal))
+    );
+
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    glVertexAttribPointer(
+        2,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        sizeof(Vertex),
+        reinterpret_cast<void*>(offsetof(Vertex, TexCoords))
+    );
 
     glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    //set bbox
-    //bbox.SetNegativeInfinity();
-    //float3 *bboxVertices = new float3[sizeof(float3) * vertices.size()];
-
-    //for (size_t i = 0; i < vertices.size(); i++)
-    //{
-    //    float3 vec;
-    //    vec.x = vertices[i].Position.x;
-    //    vec.y = vertices[i].Position.y;
-    //    vec.z = vertices[i].Position.z;
-
-
-    //    bboxVertices[i] = vec;
-    //}
-
-
-    //bbox.Enclose(bboxVertices, vertices.size());
-    //
-    ////bbox.GetCornerPoints(bboxOriginalPoints);
-    //bbox.GetCornerPoints(bboxPoints);
-
-
-    //delete[] bboxVertices;
+    CheckOpenGLError("uploading mesh");
 }
 
-void Mesh::Draw(Shader& shader, bool wireframeActive)
+void Mesh::Release() noexcept
 {
-    
-
-    //bboxTransformed = bbox;
-
-    //vec3 translation = renderer->GetGameObject()->transform->translationWorld.translation();
-    ////vec3 scaling = renderer->GetGameObject()->transform->scalingWorld.scaling();
-
-    ////translate bbox points
-    //bboxTransformed.Translate(vec(translation.x, translation.y, translation.z));
-
-
-    //vec bboxTransformedPoints[8];
-    //bboxTransformed.GetCornerPoints(bboxTransformedPoints);
-
-    ////scale box points
-    //for (size_t i = 0; i < 8; i++)
-    //{
-    //    bboxTransformedPoints[i].x *= scaling.x;
-    //    bboxTransformedPoints[i].y *= scaling.y;
-    //    bboxTransformedPoints[i].z *= scaling.z;
-    //
-    //    bboxTransformed.Enclose(bboxTransformedPoints, 8);
-    //    //bboxPoints[i] = bboxTransformedPoints[i];
-    //}
-
-
-
-    //TODO:
-    // adaptar este codigo para usar uAlbedoMap
-    
-
-    // uTint usa Blanco por defecto
-    shader.SetVec4("uTint", vec4(1.f, 1.f, 1.f, 1.f));
-
-
-    //Draw textures
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    if (!textures.empty())
+    if (ebo != 0)
     {
-        for (unsigned int i = 0; i < textures.size(); i++)
-        {
-            //// retrieve texture number (the N in diffuse_textureN)
-            //std::string number;
-            //std::string name = textures[i].type;
-            //if (name == "texture_diffuse")
-            //    number = std::to_string(diffuseNr++);
-            //else if (name == "texture_specular")
-            //    number = std::to_string(specularNr++);
-
-
-            //glActiveTexture(GL_TEXTURE0);
-            //glBindTexture(GL_TEXTURE_2D, 0);
-            //glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-
-
-            //glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-
-            ////shader.SetInt(("material." + name + number).c_str(), i);
-            //glUniform1i(glGetUniformLocation(shader.ID, ("material." + name + number).c_str()), i);
-            //glBindTexture(GL_TEXTURE_2D, textures[i].id);
-
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, textures[0].id);
-            shader.SetTexture("uAlbedoMap", 0);
-        }
+        glDeleteBuffers(1, &ebo);
+        ebo = 0;
     }
 
-   /* for (size_t i = 0; i < 8; i++)
+    if (vbo != 0)
     {
-        bboxPoints[i].x = bboxOriginalPoints[i].x + renderer->GetGameObject()->transform->translationLocal.translation().x;
-        bboxPoints[i].y = bboxOriginalPoints[i].y + renderer->GetGameObject()->transform->translationLocal.translation().y;
-        bboxPoints[i].x = bboxOriginalPoints[i].x + renderer->GetGameObject()->transform->translationLocal.translation().z;
-    }*/
-    
-
-    glPolygonMode(GL_FRONT, GL_LINE);
-
-    //if (drawBbox)
-    //{
-    //    DrawCube(bboxPoints, Color(1, 1, 1, 1));
-    //}
-
-    if (!wireframeActive)
-    {
-        glPolygonMode(GL_FRONT, GL_FILL);
-    }
-    // draw mesh
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    CheckOpenGLError("drawing elements");
-
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_TEXTURE_2D);
-
-    
-    //deactivate Textures
-    for (unsigned int i = 0; i < textures.size(); ++i)
-    {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glDeleteBuffers(1, &vbo);
+        vbo = 0;
     }
 
-    glActiveTexture(GL_TEXTURE0);
+    if (vao != 0)
+    {
+        glDeleteVertexArrays(1, &vao);
+        vao = 0;
+    }
+
+    indexCount = 0;
+}
+
+Mesh::~Mesh()
+{
+    Release();
+}
+
+Mesh::Mesh(Mesh&& other) noexcept
+    : vao(std::exchange(other.vao, 0)),
+    vbo(std::exchange(other.vbo, 0)),
+    ebo(std::exchange(other.ebo, 0)),
+    indexCount(std::exchange(other.indexCount, 0))
+{
+}
+
+Mesh& Mesh::operator=(Mesh&& other) noexcept
+{
+    if (this == &other)
+        return *this;
+
+    Release();
+
+    vao = std::exchange(other.vao, 0);
+    vbo = std::exchange(other.vbo, 0);
+    ebo = std::exchange(other.ebo, 0);
+    indexCount = std::exchange(other.indexCount, 0);
+
+    return *this;
 
 }
 
-//void Mesh::DrawCube(static float3* corners, Color color)
-//{
-//    glLineWidth(2.0f);
-//    glColor4f(color.r, color.g, color.b, color.a);
-//
-//    glBegin(GL_QUADS);
-//
-//    glVertex3fv((GLfloat*)&corners[1]);
-//    glVertex3fv((GLfloat*)&corners[5]);
-//    glVertex3fv((GLfloat*)&corners[7]);
-//    glVertex3fv((GLfloat*)&corners[3]);
-//
-//    glVertex3fv((GLfloat*)&corners[4]);
-//    glVertex3fv((GLfloat*)&corners[0]);
-//    glVertex3fv((GLfloat*)&corners[2]);
-//    glVertex3fv((GLfloat*)&corners[6]);
-//
-//    glVertex3fv((GLfloat*)&corners[5]);
-//    glVertex3fv((GLfloat*)&corners[4]);
-//    glVertex3fv((GLfloat*)&corners[6]);
-//    glVertex3fv((GLfloat*)&corners[7]);
-//
-//    glVertex3fv((GLfloat*)&corners[0]);
-//    glVertex3fv((GLfloat*)&corners[1]);
-//    glVertex3fv((GLfloat*)&corners[3]);
-//    glVertex3fv((GLfloat*)&corners[2]);
-//
-//    glVertex3fv((GLfloat*)&corners[3]);
-//    glVertex3fv((GLfloat*)&corners[7]);
-//    glVertex3fv((GLfloat*)&corners[6]);
-//    glVertex3fv((GLfloat*)&corners[2]);
-//
-//    glVertex3fv((GLfloat*)&corners[0]);
-//    glVertex3fv((GLfloat*)&corners[4]);
-//    glVertex3fv((GLfloat*)&corners[5]);
-//    glVertex3fv((GLfloat*)&corners[1]);
-//
-//    glEnd();
-//
-//}
+void Mesh::Bind() const
+{
+    glBindVertexArray(vao);
+}
+
+void Mesh::Unbind()
+{
+    glBindVertexArray(0);
+}
+
+GLsizei Mesh::GetIndexCount() const noexcept
+{
+    return indexCount;
+}
+
+GLuint Mesh::GetVertexArray() const noexcept
+{
+    return vao;
+}
+

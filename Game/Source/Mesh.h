@@ -1,57 +1,46 @@
 #pragma once
 
 #include "glew.h"
-#include <iostream>
-#include <vector>
-#include "Shader.h"
-#include "Texture.h"
-//#include "MathGeoLib/Geometry/AABB.h"
-#include "Color.h"
 #include "Vertex.h"
 
+#include <cstdint>
+#include <vector>
 
-
-class Mesh {
+class Mesh final
+{
 public:
-    // mesh data
-    std::vector<Vertex>       vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture>      textures;
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices);
 
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
-    Mesh(float* vertices, int nVertices, uint16_t* indices, int nIndices);
-    Mesh() {}
+    Mesh(const float* points, std::size_t pointCount, const std::uint16_t* indices, std::size_t triangleCount);
 
-    void Draw(Shader& shader, bool wireframeActive = false);
+    ~Mesh();
 
-    bool GetDrawBoundingBox() const
-    {
-        return drawBbox;
-    }
+    // Un recurso OpenGL no debe copiar sus handles.
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
 
-    void SetDrawBoundingBox(bool draw)
-    {
-        drawBbox = draw;
-    }
+    // Sí puede transferir su propiedad.
+    Mesh(Mesh&& other) noexcept;
+    Mesh& operator=(Mesh&& other) noexcept;
 
-    bool drawBbox = true;
+    void Bind() const;
+    static void Unbind();
 
-    std::string name;
+    GLsizei GetIndexCount() const noexcept;
+    GLuint GetVertexArray() const noexcept;
 
-    
-
-    //AABB bbox;
-    //AABB bboxTransformed;
-    //vec bboxPoints[8];
-    //vec bboxOriginalPoints[8];
-    //GOC_MeshRenderer* renderer;
-    
 private:
-    //  render data
-    unsigned int VAO, VBO, EBO;
-    
-   
+    void Upload(
+        const std::vector<Vertex>& vertices,
+        const std::vector<std::uint32_t>& indices
+    );
 
-    void SetupMesh();
+    void Release() noexcept;
+
+private:
+    GLuint vao = 0;
+    GLuint vbo = 0;
+    GLuint ebo = 0;
+
+    GLsizei indexCount = 0;
 };

@@ -4,6 +4,8 @@
 #include "Module.h"
 #include "Globals.h"
 #include "glmath.h"	
+#include "Mesh.h"
+#include "Material.h"
 
 
 struct Gl_Attributes
@@ -16,6 +18,7 @@ struct Gl_Attributes
 	bool Lightning = false;
 	bool Wireframe = false;
 };
+
 
 class Render : public Module
 {
@@ -42,6 +45,11 @@ public:
 
 	void OnResize(int width, int height);
 
+	bool DrawMesh(
+		const Mesh& mesh,
+		const Material& material,
+		const mat4x4& modelMatrix
+	);
 
 public:
 	SDL_GLContext glContext;
@@ -49,6 +57,12 @@ public:
 	mat4x4 modelMatrix, viewMatrix, projectionMatrix;
 	float fov = 60.f;
 	Gl_Attributes attributes;
+
+private:
+	void ApplyMaterialState(
+		const Material& material
+	);
+
 };
 
 #endif // __RENDER_H__

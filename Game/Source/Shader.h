@@ -14,11 +14,19 @@ class Shader
 {
 public:
     // the program ID
-    unsigned int ID;
+    unsigned int ID = 0;
 
     // constructor reads and builds the shader
-    Shader(){}
+    //Shader(){}
     Shader(const char* vertexPath, const char* fragmentPath);
+    ~Shader();
+    
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
+
+    Shader(Shader&& other) noexcept;
+    Shader& operator=(Shader&& other) noexcept;
+
     void Set(const char* vertexPath, const char* fragmentPath);
 
     // use/activate the shader

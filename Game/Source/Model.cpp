@@ -1,74 +1,165 @@
 #include "Model.h"
 #include "Textures.h"
 #include <vector>
+#include <memory>
+#include "Render.h"
 
+
+namespace
+{
+    std::string ExtractFilename(const std::string& path)
+    {
+        const std::size_t separator =
+            path.find_last_of("/\\");
+
+        if (separator == std::string::npos)
+            return path;
+
+        return path.substr(separator + 1);
+    }
+}
 
 Model::Model(const char* path, App* app) 
 {
     this->app = app;
+
     LoadModel(path);
+}
+
+void Model::Draw(
+    Render& render,
+    const mat4x4& modelMatrix
+) const
+{
+    // Primera pasada: opacos.
+    for (const ModelPart& part : parts)
+    {
+        if (!part.mesh || !part.material)
+            continue;
+
+        if (part.material->transparent)
+            continue;
+
+        render.DrawMesh(
+            *part.mesh,
+            *part.material,
+            modelMatrix
+        );
+    }
+
+    // Segunda pasada: transparentes.
+    for (const ModelPart& part : parts)
+    {
+        if (!part.mesh || !part.material)
+            continue;
+
+        if (!part.material->transparent)
+            continue;
+
+        render.DrawMesh(
+            *part.mesh,
+            *part.material,
+            modelMatrix
+        );
+    }
 }
 
 bool Model::Set(const char* path)
 {
+    parts.clear();
+    directory.clear();
+
     return LoadModel(path);
 }
 
-void Model::Set(Model *model)
+//void Model::Set(Model *model)
+//{
+//    for (Mesh m : model->meshes)
+//    {
+//        meshes.push_back(m);
+//    }
+//
+//    for (Texture  t : model->textures_loaded)
+//    {
+//        textures_loaded.push_back(t);
+//    }
+//
+//    directory = model->directory;
+//}
+
+void Model::Set(const Model& model)
 {
-    for (Mesh m : model->meshes)
-    {
-        meshes.push_back(m);
-    }
-
-    for (Texture  t : model->textures_loaded)
-    {
-        textures_loaded.push_back(t);
-    }
-
-    directory = model->directory;
+    parts = model.parts;
+    directory = model.directory;
 }
 
-bool Model::Set(Model otherModel)
+void Model::SetShaderForAllMaterials(
+    const std::shared_ptr<Shader>& shader
+)
 {
-    bool ret = true;
-
-    std::copy(otherModel.textures_loaded.begin(), otherModel.textures_loaded.end(), textures_loaded.begin());
-    std::copy(otherModel.GetMeshes().begin(), otherModel.GetMeshes().end(), meshes.begin());
-    directory = otherModel.GetDirectory();
-
-    if (textures_loaded.empty() || meshes.empty() || std::strcmp(directory.c_str(), ""))
+    for (ModelPart& part : parts)
     {
-        ret = false;
-    }
+        if (!part.material)
+            part.material = std::make_shared<Material>();
 
-    return ret;
+        part.material->SetShader(shader);
+    }
 }
 
-void Model::Draw(Shader& shader, bool wireframeActive)
+bool Model::SetMaterial(
+    std::size_t partIndex,
+    std::shared_ptr<Material> material
+)
 {
-    for (unsigned int i = 0; i < meshes.size(); i++)
-        meshes[i].Draw(shader, wireframeActive);
+    if (partIndex >= parts.size())
+        return false;
+
+    if (!material)
+        return false;
+
+    parts[partIndex].material = std::move(material);
+    return true;
+}
+
+std::shared_ptr<Material> Model::GetMaterial(
+    std::size_t partIndex
+) const
+{
+    if (partIndex >= parts.size())
+        return nullptr;
+
+    return parts[partIndex].material;
 }
 
 bool Model::LoadModel(std::string path)
 {
-    bool ret = true;
     Assimp::Importer import;
-    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 
-    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-    {
-        //std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
-        /*App->ui->AppendToOutput(DEBUG_LOG("ERROR::ASSIMP:: %s", import.GetErrorString()));*/
 
-        ret = false;
-    }
     directory = path.substr(0, path.find_last_of('/'));
+
+    if (!scene ||
+        (scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE) ||
+        !scene->mRootNode)
+    {
+        DEBUG_LOG(
+            "Assimp error loading [%s]: %s",
+            path.c_str(),
+        import.GetErrorString()
+        );
+
+        return false;
+    }
+
+    directory = path.substr(
+        0,
+        path.find_last_of("/\\")
+    );
 
     ProcessNode(scene->mRootNode, scene);
 
-    return ret;
+    return true;
 }
 
 void Model::ProcessNode(aiNode* node, const aiScene* scene)
@@ -77,7 +168,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     for (unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        meshes.push_back(ProcessMesh(mesh, scene));
+        parts.push_back(ProcessMesh(mesh, scene));
     }
     // then do the same for each of its children
     for (unsigned int i = 0; i < node->mNumChildren; i++)
@@ -86,7 +177,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
     }
 }
 
-Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+ModelPart Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 {
     /*App->ui->AppendToOutput(DEBUG_LOG("Loading Meshes..."));*/
 
@@ -105,10 +196,18 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         vector.z = mesh->mVertices[i].z;
         vertex.Position = vector;
 
-        vector.x = mesh->mNormals[i].x;
-        vector.y = mesh->mNormals[i].y;
-        vector.z = mesh->mNormals[i].z;
-        vertex.Normal = vector;
+        if (mesh->HasNormals())
+        {
+            vertex.Normal = vec3(
+                mesh->mNormals[i].x,
+                mesh->mNormals[i].y,
+                mesh->mNormals[i].z
+            );
+        }
+        else
+        {
+            vertex.Normal = vec3(0.0f, 1.0f, 0.0f);
+        }
 
         if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
         {
@@ -136,55 +235,133 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 
     //App->ui->AppendToOutput(DEBUG_LOG("Loading Textures..."));
 
-    // process material
+    std::vector<Texture> diffuseMaps;
+
     if (mesh->mMaterialIndex >= 0)
     {
-        if (mesh->mMaterialIndex >= 0)
+        aiMaterial* importedMaterial =
+            scene->mMaterials[mesh->mMaterialIndex];
+
+        diffuseMaps = LoadMaterialTextures(
+            importedMaterial,
+            aiTextureType_DIFFUSE,
+            "texture_diffuse"
+        );
+    }
+
+    ModelPart part;
+
+    part.mesh = std::make_shared<Mesh>(
+        vertices,
+        indices
+    );
+
+    part.material = std::make_shared<Material>();
+
+    if (!diffuseMaps.empty())
+    {
+        part.material->SetAlbedoMap(
+            diffuseMaps.front()
+        );
+    }
+    else
+    {
+        const Texture* defaultTexture =
+            app->tex->GetDefaultTexture();
+
+        if (defaultTexture != nullptr)
         {
-            aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-
-            std::vector<Texture> diffuseMaps = LoadMaterialTextures(material,
-                aiTextureType_DIFFUSE, "texture_diffuse");
-
-            textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-            std::vector<Texture> specularMaps = LoadMaterialTextures(material,
-                aiTextureType_SPECULAR, "texture_specular");
-
-            textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+            part.material->SetAlbedoMap(
+                *defaultTexture
+            );
         }
     }
 
-    return Mesh(vertices, indices, textures);
+    return part;
 }
 
-std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName)
+std::vector<Texture> Model::LoadMaterialTextures(
+    aiMaterial* material,
+    aiTextureType type,
+    std::string typeName
+)
 {
-    std::vector<Texture> loaded_textures;
-    for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    std::vector<Texture> loadedTextures;
+
+    const unsigned int textureCount =
+        material->GetTextureCount(type);
+
+    for (unsigned int i = 0;
+        i < textureCount;
+        ++i)
     {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        bool skip = false;
-        for (unsigned int j = 0; j < app->tex->GetAllTextures().size(); j++)
+        aiString importedPath;
+
+        if (material->GetTexture(
+            type,
+            i,
+            &importedPath
+        ) != AI_SUCCESS)
         {
-            if (std::strcmp(app->tex->GetAllTextures()[j].name.c_str(), str.C_Str()) == 0)
+            continue;
+        }
+
+        const std::string relativePath =
+            importedPath.C_Str();
+
+        const std::string filename =
+            ExtractFilename(relativePath);
+
+        // Primero intenta reutilizar una textura ya cargada.
+        const Texture* texture =
+            app->tex->FindTexture(filename);
+
+        if (texture == nullptr)
+        {
+            // Assimp normalmente devuelve una ruta relativa
+            // al archivo del modelo.
+            const std::string fullPath =
+                directory + "/" + relativePath;
+
+            if (app->tex->LoadFromPath(
+                fullPath.c_str()
+            ))
             {
-                loaded_textures.push_back(app->tex->GetAllTextures()[j]);
-                skip = true;
-                break;
+                texture =
+                    app->tex->FindTexture(filename);
             }
         }
-        if (!skip)
-        {   // if texture hasn't been loaded already, load it
-            //Texture texture = LoadTexture("Assets/Project_1/Assets/Textures/baker_house.png");
-            //std::string name = "baker_house.png ";/*[" + std::to_string(texture.id);
-            //name += "]";*/
-            //texture.name = name;
-            //texture.type = typeName;
-            loaded_textures.push_back(app->tex->GetAllTextures()[0]);
-            //textures_loaded.push_back(texture); // add to loaded textures
+
+        if (texture != nullptr)
+        {
+            Texture loadedTexture = *texture;
+            loadedTexture.type = typeName;
+
+            loadedTextures.push_back(
+                std::move(loadedTexture)
+            );
+        }
+        else
+        {
+            DEBUG_LOG(
+                "Could not load model texture: %s",
+                relativePath.c_str()
+            );
+
+            const Texture* defaultTexture =
+                app->tex->GetDefaultTexture();
+
+            if (defaultTexture != nullptr)
+            {
+                Texture fallback = *defaultTexture;
+                fallback.type = typeName;
+
+                loadedTextures.push_back(
+                    std::move(fallback)
+                );
+            }
         }
     }
-    return loaded_textures;
+
+    return loadedTextures;
 }

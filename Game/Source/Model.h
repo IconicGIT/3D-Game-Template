@@ -13,39 +13,54 @@
 #include "TextureLoader.h"
 
 #include "glmath.h"
+#include "Material.h"
+
+class Render;
+
+struct ModelPart
+{
+    std::shared_ptr<Mesh> mesh;
+    std::shared_ptr<Material> material;
+};
 
 class Model
 {
 public:
     Model(const char* path, App* app);
     
-    void Draw(Shader& shader, bool drawMode);
+    void Draw(Render& render, const mat4x4& modelMatrix) const;
 
     bool Set(const char* path);
-    bool Set(Model model);
-    void Set(Model* model);
+    void Set(const Model& model);
+    //void Set(Model* model);
 
-    std::vector<Mesh> GetMeshes() const
-    {
-        return meshes;
-    }
+    //std::vector<Mesh> GetMeshes() const
+    //{
+    //    return meshes;
+    //}
 
     std::string GetDirectory() const
     {
         return directory;
     }
 
-    std::vector<Texture> GetTextures() const
+    const std::vector<ModelPart>& GetParts() const noexcept
     {
-        return textures_loaded;
+        return parts;
     }
+
+    void SetShaderForAllMaterials(
+        const std::shared_ptr<Shader>& shader
+    );
+
+    bool SetMaterial(std::size_t partIndex, std::shared_ptr<Material> material);
+    std::shared_ptr<Material> GetMaterial(std::size_t partIndex) const;
 
 private:
     App* app;
-    std::vector<Texture> textures_loaded;
 
     // model data
-    std::vector<Mesh> meshes;
+    std::vector<ModelPart> parts;
     std::string directory = "";
    
 
@@ -53,7 +68,7 @@ private:
 
     void ProcessNode(aiNode* node, const aiScene* scene);
 
-    Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+    ModelPart ProcessMesh(aiMesh* mesh, const aiScene* scene);
 
     std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 
