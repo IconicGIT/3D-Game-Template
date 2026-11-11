@@ -15,7 +15,6 @@
 #include "glmath.h"
 #include "Material.h"
 
-class Render;
 
 struct ModelPart
 {
@@ -28,10 +27,6 @@ class Model
 public:
     Model(const char* path, App* app);
     
-    bool Submit(
-        Render& render,
-        const mat4x4& modelMatrix
-    ) const;
 
     bool Set(const char* path);
     void Set(const Model& model);

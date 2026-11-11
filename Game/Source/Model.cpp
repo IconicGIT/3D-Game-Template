@@ -2,7 +2,6 @@
 #include "Textures.h"
 #include <vector>
 #include <memory>
-#include "Render.h"
 
 
 namespace
@@ -24,35 +23,6 @@ Model::Model(const char* path, App* app)
     this->app = app;
 
     LoadModel(path);
-}
-
-bool Model::Submit(
-    Render& render,
-    const mat4x4& modelMatrix
-) const
-{
-    bool success = true;
-
-    for (const ModelPart& part : parts)
-    {
-        if (!part.mesh || !part.material)
-        {
-            success = false;
-            continue;
-        }
-
-        const bool submitted =
-            render.Submit(
-                part.mesh,
-                part.material,
-                modelMatrix
-            );
-
-        if (!submitted)
-            success = false;
-    }
-
-    return success;
 }
 
 bool Model::Set(const char* path)

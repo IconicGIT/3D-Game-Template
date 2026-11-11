@@ -6,12 +6,32 @@
 #include "Texture.h"
 #include "TextureLoader.h"
 #include "Model.h"
+#include "GameObject.h"
 
-struct SDL_Texture;
+#include <memory>
+#include <string>
+#include <vector>
+
+class System;
+class RenderSystem;
+
 
 class Scene : public Module
 {
 public:
+
+
+	GameObject& CreateGameObject(
+		const std::string& name
+	);
+
+	const std::vector<std::unique_ptr<GameObject>>&
+		GetGameObjects() const noexcept;
+
+	void DestroyPendingGameObjects();
+
+	GameObject* FindGameObject(GameObjectId id) noexcept;
+
 
 	Scene();
 
@@ -38,8 +58,16 @@ public:
 
 private:
 
-	std::unique_ptr<Model> tempModel;
-	std::shared_ptr<Shader> tempShader;
+	GameObjectId goHouseA = 0;
+	GameObjectId goHouseB = 0;
+
+	GameObjectId nextGameObjectId = 0;
+
+	std::vector<std::unique_ptr<GameObject>>
+		gameObjects;
+
+	std::vector<std::unique_ptr<System>>
+		systems;
 
 };
 

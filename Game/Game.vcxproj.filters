@@ -45,6 +45,18 @@
     <ClCompile Include="Source\Material.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Source\GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\TransformComponent.cpp">
+      <Filter>GameObject\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\ModelRendererComponent.cpp">
+      <Filter>GameObject\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\RenderSystem.cpp">
+      <Filter>GameObject\Systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Window.h" />
@@ -122,6 +134,24 @@
     <ClInclude Include="Source\RenderCommand.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Source\GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Component.h">
+      <Filter>GameObject\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\TransformComponent.h">
+      <Filter>GameObject\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\ModelRendererComponent.h">
+      <Filter>GameObject\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\System.h">
+      <Filter>GameObject\Systems</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\RenderSystem.h">
+      <Filter>GameObject\Systems</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="External">
@@ -147,6 +177,15 @@
     </Filter>
     <Filter Include="Resource Loading">
       <UniqueIdentifier>{609fe520-9340-4286-bcd8-cd391c9b9b65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{de684eb5-ce89-4e95-b863-ed0e8fa2fc8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject\Components">
+      <UniqueIdentifier>{9f88e5fc-7c0e-41c5-b78b-4ac66a3fa82e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject\Systems">
+      <UniqueIdentifier>{1708bc0d-3722-4341-a066-809fc3cb6ba5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

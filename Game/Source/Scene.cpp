@@ -10,8 +10,11 @@
 #include "Defs.h"
 #include "Log.h"
 #include "glew.h"
+#include <algorithm>
 
-
+#include "TransformComponent.h"
+#include "ModelRendererComponent.h"
+#include "RenderSystem.h"
 
 Scene::Scene() : Module()
 {
@@ -30,52 +33,94 @@ bool Scene::Awake()
 
 	return ret;
 }
+float a = 0;
 
 // Called before the first frame
 bool Scene::Start()
 {
-	//img = app->tex->Load("Assets/Textures/test.png");
-	//app->audio->PlayMusic("Assets/Audio/Music/music_spy.ogg");
-
-	app->tex->LoadFromPath("Assets/Textures/checker_pattern.png");
 	app->tex->LoadFromPath("Assets/Textures/Baker_house.png");
 
+	auto defaultShader =
+		std::make_shared<Shader>(
+			"Assets/Shaders/default.vertex",
+			"Assets/Shaders/default.fragment"
+		);
 
-	tempShader = std::make_shared<Shader>(
-		"Assets/Shaders/default.vertex",
-		"Assets/Shaders/default.fragment"
-	);
-
-	if (!tempShader->IsValid())
-	{
-		DEBUG_LOG("Default shader is invalid");
+	if (!defaultShader->IsValid())
 		return false;
-	}
 
-	tempModel = std::make_unique<Model>(
-		"Assets/Models/baker_house.fbx",
-		app
+	auto houseModel =
+		std::make_shared<Model>(
+			"Assets/Models/baker_house.fbx",
+			app
+		);
+
+	houseModel->SetShaderForAllMaterials(
+		defaultShader
 	);
 
-	tempModel->SetShaderForAllMaterials(
-		tempShader
+
+	//GameObject 1
+	GameObject& houseA = 
+		CreateGameObject("Baker house");
+
+	TransformComponent& transformA =
+		houseA.AddComponent<TransformComponent>();
+
+	transformA.SetPosition(
+		vec3(0.0f, 0.0f, 0.0f)
 	);
 
+	transformA.SetRotation(
+		vec3(0.0f, 0.0f, 0.0f)
+	);
 
-	//Testing materials
-	std::shared_ptr<Material> material =
-		tempModel->GetMaterial(1);
+	transformA.SetScale(
+		vec3(1.0f, 1.0f, 1.0f)
+	);
 
-	if (material)
-	{
-		material->transparent = true;
-		material->depthWrite = false;
-		material->tint =
-			vec4(1.0f, 0.3f, 0.3f, 0.5f);
-	}
+	houseA.AddComponent<ModelRendererComponent>(
+		houseModel
+	);
+
+	
+
+	goHouseA = houseA.GetId();
+
+	//GameObject 1
+	GameObject& houseB =
+		CreateGameObject("Baker house");
+
+	TransformComponent& transformB =
+		houseB.AddComponent<TransformComponent>();
+
+	transformB.SetPosition(
+		vec3(0.0f, 0.0f, 0.0f)
+	);
+
+	transformB.SetRotation(
+		vec3(0.0f, 0.0f, 0.0f)
+	);
+
+	transformB.SetScale(
+		vec3(1.0f, 1.0f, 1.0f)
+	);
+
+	houseB.AddComponent<ModelRendererComponent>(
+		houseModel
+	);
+
+	goHouseB = houseB.GetId();
 
 
 
+
+	//Add systems
+	systems.push_back(
+		std::make_unique<RenderSystem>(
+			*app->render
+		)
+	);
 	return true;
 }
 
@@ -88,17 +133,56 @@ bool Scene::PreUpdate()
 // Called each loop iteration
 bool Scene::Update(float dt)
 {
+	//Testing
+
+	a += dt;
+
+	vec3 posA = vec3(sin(a) * 2, 0.f, 5.f);
+	vec3 posB = vec3(sin(a * 2) * 2, 0.f, -5.f);
+
+	if (GameObject* house = FindGameObject(goHouseA))
+	{
+		if (TransformComponent* transform =
+			house->GetComponent<TransformComponent>())
+		{
+			transform->SetPosition(posA);
+		}
+	}
+
+	if (GameObject* house = FindGameObject(goHouseB))
+	{
+		if (TransformComponent* transform =
+			house->GetComponent<TransformComponent>())
+		{
+			transform->SetPosition(posB);
+		}
+	}
+
+	if (GameObject* house = FindGameObject(goHouseB))
+	{
+		if (app->input->GetKey(SDL_SCANCODE_T) == KEY_DOWN)
+		{
+			house->SetActive(!house->IsActive());
+		}
+	}
 
 
-	const mat4x4 modelMatrix = IdentityMatrix;
+	//Systems
+	bool success = true;
 
-	tempModel->Submit(
-		*app->render,
-		modelMatrix
-	);
+	for (const std::unique_ptr<System>& system :
+		systems)
+	{
+		if (!system || !system->IsEnabled())
+			continue;
 
+		if (!system->Update(*this, dt))
+			success = false;
+	}
 
-	return true;
+	DestroyPendingGameObjects();
+
+	return success;
 }
 
 // Called each loop iteration
@@ -117,8 +201,62 @@ bool Scene::CleanUp()
 {
 	DEBUG_LOG("Freeing scene");
 
-	tempModel.reset();
-	tempShader.reset();
+	systems.clear();
+	gameObjects.clear();
 
 	return true;
+}
+
+GameObject& Scene::CreateGameObject(
+	const std::string& name
+)
+{
+	auto object =
+		std::make_unique<GameObject>(
+			nextGameObjectId++,
+			name
+		);
+
+	GameObject* objectPointer =
+		object.get();
+
+	gameObjects.push_back(
+		std::move(object)
+	);
+
+	return *objectPointer;
+}
+
+const std::vector<std::unique_ptr<GameObject>>&
+Scene::GetGameObjects() const noexcept
+{
+	return gameObjects;
+}
+
+void Scene::DestroyPendingGameObjects()
+{
+	gameObjects.erase(
+		std::remove_if(
+			gameObjects.begin(),
+			gameObjects.end(),
+			[](const std::unique_ptr<GameObject>& object)
+			{
+				return object->IsPendingDestroy();
+			}
+		),
+		gameObjects.end()
+	);
+}
+
+GameObject* Scene::FindGameObject(
+	GameObjectId id
+) noexcept
+{
+	for (const auto& object : gameObjects)
+	{
+		if (object && object->GetId() == id)
+			return object.get();
+	}
+
+	return nullptr;
 }
