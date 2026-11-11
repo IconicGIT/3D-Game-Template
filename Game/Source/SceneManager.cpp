@@ -1,24 +1,19 @@
 #include "App.h"
-#include "Input.h"
-#include "Textures.h"
-#include "Audio.h"
-#include "Render.h"
-#include "Camera3D.h"
-#include "Window.h"
 #include "SceneManager.h"
 
 #include "Defs.h"
 #include "Log.h"
-#include "glew.h"
-#include <algorithm>
 
-#include "TransformComponent.h"
-#include "ModelRendererComponent.h"
-#include "RenderSystem.h"
+#include "GameScene.h"
+#include "Scene.h"
 
-SceneManager::SceneManager() : Module()
+#include <memory>
+#include <utility>
+
+SceneManager::SceneManager(App& application)
+	: app(application)
 {
-	name.Create("scene");
+	name.Create("scene manager");
 }
 
 // Destructor
@@ -26,237 +21,109 @@ SceneManager::~SceneManager()
 {}
 
 // Called before render is available
-bool SceneManager::Awake()
+bool SceneManager::Awake(
+	pugi::xml_node&
+)
 {
 	DEBUG_LOG("Loading SceneManager");
-	bool ret = true;
-
-	return ret;
+	return true;
 }
-float a = 0;
+
 
 // Called before the first frame
 bool SceneManager::Start()
 {
-	app->tex->LoadFromPath("Assets/Textures/Baker_house.png");
+	pendingScene =
+		std::make_unique<GameScene>(app);
 
-	auto defaultShader =
-		std::make_shared<Shader>(
-			"Assets/Shaders/default.vertex",
-			"Assets/Shaders/default.fragment"
-		);
-
-	if (!defaultShader->IsValid())
-		return false;
-
-	auto houseModel =
-		std::make_shared<Model>(
-			"Assets/Models/baker_house.fbx",
-			app
-		);
-
-	houseModel->SetShaderForAllMaterials(
-		defaultShader
-	);
-
-
-	//GameObject 1
-	GameObject& houseA = 
-		CreateGameObject("Baker house");
-
-	TransformComponent& transformA =
-		houseA.AddComponent<TransformComponent>();
-
-	transformA.SetPosition(
-		vec3(0.0f, 0.0f, 0.0f)
-	);
-
-	transformA.SetRotation(
-		vec3(0.0f, 0.0f, 0.0f)
-	);
-
-	transformA.SetScale(
-		vec3(1.0f, 1.0f, 1.0f)
-	);
-
-	houseA.AddComponent<ModelRendererComponent>(
-		houseModel
-	);
-
-	
-
-	goHouseA = houseA.GetId();
-
-	//GameObject 1
-	GameObject& houseB =
-		CreateGameObject("Baker house");
-
-	TransformComponent& transformB =
-		houseB.AddComponent<TransformComponent>();
-
-	transformB.SetPosition(
-		vec3(0.0f, 0.0f, 0.0f)
-	);
-
-	transformB.SetRotation(
-		vec3(0.0f, 0.0f, 0.0f)
-	);
-
-	transformB.SetScale(
-		vec3(1.0f, 1.0f, 1.0f)
-	);
-
-	houseB.AddComponent<ModelRendererComponent>(
-		houseModel
-	);
-
-	goHouseB = houseB.GetId();
-
-
-
-
-	//Add systems
-	systems.push_back(
-		std::make_unique<RenderSystem>(
-			*app->render
-		)
-	);
-	return true;
+	return ApplyPendingScene();
 }
-
 // Called each loop iteration
 bool SceneManager::PreUpdate()
 {
-	return true;
+	if (!ApplyPendingScene())
+		return false;
+
+	if (!activeScene)
+		return true;
+
+	return activeScene->PreUpdate();
 }
 
 // Called each loop iteration
 bool SceneManager::Update(float dt)
 {
-	//Testing
+	if (!activeScene)
+		return true;
 
-	a += dt;
-
-	vec3 posA = vec3(sin(a) * 2, 0.f, 5.f);
-	vec3 posB = vec3(sin(a * 2) * 2, 0.f, -5.f);
-
-	if (GameObject* house = FindGameObject(goHouseA))
-	{
-		if (TransformComponent* transform =
-			house->GetComponent<TransformComponent>())
-		{
-			transform->SetPosition(posA);
-		}
-	}
-
-	if (GameObject* house = FindGameObject(goHouseB))
-	{
-		if (TransformComponent* transform =
-			house->GetComponent<TransformComponent>())
-		{
-			transform->SetPosition(posB);
-		}
-	}
-
-	if (GameObject* house = FindGameObject(goHouseB))
-	{
-		if (app->input->GetKey(SDL_SCANCODE_T) == KEY_DOWN)
-		{
-			house->SetActive(!house->IsActive());
-		}
-	}
-
-
-	//Systems
-	bool success = true;
-
-	for (const std::unique_ptr<System>& system :
-		systems)
-	{
-		if (!system || !system->IsEnabled())
-			continue;
-
-		if (!system->Update(*this, dt))
-			success = false;
-	}
-
-	DestroyPendingGameObjects();
-
-	return success;
+	return activeScene->Update(dt);
 }
 
 // Called each loop iteration
 bool SceneManager::PostUpdate()
 {
-	bool ret = true;
+	if (!activeScene)
+		return true;
 
-	if(app->input->GetKey(SDL_SCANCODE_ESCAPE) == KEY_DOWN)
-		ret = false;
-
-	return ret;
+	return activeScene->PostUpdate();
 }
 
 // Called before quitting
 bool SceneManager::CleanUp()
 {
-	DEBUG_LOG("Freeing scene");
+	DEBUG_LOG("Freeing SceneManager");
 
-	systems.clear();
-	gameObjects.clear();
+	pendingScene.reset();
+
+	if (activeScene)
+	{
+		activeScene->Unload();
+		activeScene.reset();
+	}
 
 	return true;
 }
 
-GameObject& SceneManager::CreateGameObject(
-	const std::string& name
+void SceneManager::RequestSceneChange(
+	std::unique_ptr<Scene> scene
 )
 {
-	auto object =
-		std::make_unique<GameObject>(
-			nextGameObjectId++,
-			name
-		);
-
-	GameObject* objectPointer =
-		object.get();
-
-	gameObjects.push_back(
-		std::move(object)
-	);
-
-	return *objectPointer;
+	pendingScene = std::move(scene);
 }
 
-const std::vector<std::unique_ptr<GameObject>>&
-SceneManager::GetGameObjects() const noexcept
+bool SceneManager::ApplyPendingScene()
 {
-	return gameObjects;
-}
+	if (!pendingScene)
+		return true;
 
-void SceneManager::DestroyPendingGameObjects()
-{
-	gameObjects.erase(
-		std::remove_if(
-			gameObjects.begin(),
-			gameObjects.end(),
-			[](const std::unique_ptr<GameObject>& object)
-			{
-				return object->IsPendingDestroy();
-			}
-		),
-		gameObjects.end()
-	);
-}
-
-GameObject* SceneManager::FindGameObject(
-	GameObjectId id
-) noexcept
-{
-	for (const auto& object : gameObjects)
+	// Primero intenta cargar la nueva.
+	if (!pendingScene->Load())
 	{
-		if (object && object->GetId() == id)
-			return object.get();
+		DEBUG_LOG("Could not load pending scene");
+
+		pendingScene.reset();
+
+		// La escena anterior sigue activa.
+		return false;
 	}
 
-	return nullptr;
+	// Solo descarga la anterior cuando sabemos
+	// que la nueva se ha cargado correctamente.
+	if (activeScene)
+		activeScene->Unload();
+
+	activeScene = std::move(pendingScene);
+
+	return true;
+}
+
+Scene* SceneManager::GetActiveScene() noexcept
+{
+	return activeScene.get();
+}
+
+const Scene*
+SceneManager::GetActiveScene() const noexcept
+{
+	return activeScene.get();
 }

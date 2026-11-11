@@ -3,6 +3,7 @@
 #include "System.h"
 
 class Render;
+class Scene;
 
 class RenderSystem final : public System
 {
@@ -10,7 +11,7 @@ public:
     explicit RenderSystem(Render& render);
 
     bool Update(
-        SceneManager& scene,
+        Scene& scene,
         float dt
     ) override;
 

@@ -8,6 +8,7 @@
 #include <typeindex>
 #include <unordered_map>
 #include <utility>
+#include <cstdint>
 
 using GameObjectId = std::uint64_t;
 

@@ -1,74 +1,61 @@
-#ifndef __SCENE_H__
-#define __SCENE_H__
+#pragma once
 
 #include "Module.h"
-#include "Mesh.h"
-#include "Texture.h"
-#include "TextureLoader.h"
-#include "Model.h"
-#include "GameObject.h"
-
-#include <memory>
-#include <string>
-#include <vector>
-
-class System;
-class RenderSystem;
+#include <type_traits>
 
 
-class SceneManager : public Module
+class App;
+class Scene;
+
+class SceneManager final : public Module
 {
 public:
+    explicit SceneManager(App& app);
+    ~SceneManager() override;
 
+    bool Awake(
+        pugi::xml_node& config
+    ) override;
 
-	GameObject& CreateGameObject(
-		const std::string& name
-	);
+    bool Start() override;
 
-	const std::vector<std::unique_ptr<GameObject>>&
-		GetGameObjects() const noexcept;
+    bool PreUpdate() override;
+    bool Update(float dt) override;
+    bool PostUpdate() override;
 
-	void DestroyPendingGameObjects();
+    bool CleanUp() override;
 
-	GameObject* FindGameObject(GameObjectId id) noexcept;
+    Scene* GetActiveScene() noexcept;
+    const Scene* GetActiveScene() const noexcept;
 
+    void RequestSceneChange(
+        std::unique_ptr<Scene> scene
+    );
 
-	SceneManager();
+    template<typename T, typename... Arguments>
+    void RequestSceneChange(
+        Arguments&&... arguments
+    )
+    {
+        static_assert(
+            std::is_base_of<Scene, T>::value,
+            "T must derive from Scene"
+            );
 
-	// Destructor
-	virtual ~SceneManager();
-
-	// Called before render is available
-	bool Awake();
-
-	// Called before the first frame
-	bool Start();
-
-	// Called before all Updates
-	bool PreUpdate();
-
-	// Called each loop iteration
-	bool Update(float dt);
-
-	// Called before all Updates
-	bool PostUpdate();
-
-	// Called before quitting
-	bool CleanUp();
+        RequestSceneChange(
+            std::make_unique<T>(
+                app,
+                std::forward<Arguments>(arguments)...
+            )
+        );
+    }
 
 private:
+    bool ApplyPendingScene();
 
-	GameObjectId goHouseA = 0;
-	GameObjectId goHouseB = 0;
+private:
+    App& app;
 
-	GameObjectId nextGameObjectId = 0;
-
-	std::vector<std::unique_ptr<GameObject>>
-		gameObjects;
-
-	std::vector<std::unique_ptr<System>>
-		systems;
-
+    std::unique_ptr<Scene> activeScene;
+    std::unique_ptr<Scene> pendingScene;
 };
-
-#endif // __SCENE_H__

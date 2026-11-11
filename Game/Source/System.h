@@ -1,6 +1,6 @@
 #pragma once
 
-class SceneManager;
+class Scene;
 
 class System
 {
@@ -18,7 +18,7 @@ public:
     }
 
     virtual bool Update(
-        SceneManager& scene,
+        Scene& scene,
         float dt
     ) = 0;
 

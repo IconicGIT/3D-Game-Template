@@ -23,7 +23,7 @@ App::App(int argc, char* args[]) : argc(argc), args(args)
 	render = new Render();
 	tex = new Textures();
 	audio = new Audio();
-	sceneManager = new SceneManager();
+	sceneManager = new SceneManager(*this);
 	camera3D = new Camera3D();
 
 	// Ordered for awake / Start / Update

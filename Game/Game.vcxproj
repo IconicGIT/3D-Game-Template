@@ -103,6 +103,7 @@
     <ClCompile Include="Source\Color.cpp" />
     <ClCompile Include="Source\External\par_shapes\par_shapes.cpp" />
     <ClCompile Include="Source\GameObject.cpp" />
+    <ClCompile Include="Source\GameScene.cpp" />
     <ClCompile Include="Source\glmath.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\App.cpp" />
@@ -115,6 +116,7 @@
     <ClCompile Include="Source\ModuleTemplate.cpp" />
     <ClCompile Include="Source\OpenGLDebug.cpp" />
     <ClCompile Include="Source\RenderSystem.cpp" />
+    <ClCompile Include="Source\Scene.cpp" />
     <ClCompile Include="Source\SceneManager.cpp" />
     <ClCompile Include="Source\Render.cpp" />
     <ClCompile Include="Source\Shader.cpp" />
@@ -128,6 +130,7 @@
     <ClInclude Include="Source\Component.h" />
     <ClInclude Include="Source\External\par_shapes\par_shapes.h" />
     <ClInclude Include="Source\GameObject.h" />
+    <ClInclude Include="Source\GameScene.h" />
     <ClInclude Include="Source\glmath.h" />
     <ClInclude Include="Source\Globals.h" />
     <ClInclude Include="Source\Material.h" />
@@ -139,6 +142,7 @@
     <ClInclude Include="Source\Queue.h" />
     <ClInclude Include="Source\RenderCommand.h" />
     <ClInclude Include="Source\RenderSystem.h" />
+    <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\SceneManager.h" />
     <ClInclude Include="Source\Audio.h" />
     <ClInclude Include="Source\Input.h" />
