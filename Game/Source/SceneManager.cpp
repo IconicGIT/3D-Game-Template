@@ -96,19 +96,24 @@ bool SceneManager::ApplyPendingScene()
 	if (!pendingScene)
 		return true;
 
-	// Primero intenta cargar la nueva.
+	// Intentamos cargar la nueva escena antes
+	// de descargar la escena actual.
 	if (!pendingScene->Load())
 	{
 		DEBUG_LOG("Could not load pending scene");
 
 		pendingScene.reset();
 
-		// La escena anterior sigue activa.
-		return false;
+		// Si había una escena activa, el juego puede
+		// continuar utilizándola.
+		//
+		// Si no había ninguna, estamos cargando la escena
+		// inicial y la inicialización debe fallar.
+		return activeScene != nullptr;
 	}
 
-	// Solo descarga la anterior cuando sabemos
-	// que la nueva se ha cargado correctamente.
+	// La nueva escena se ha cargado correctamente.
+	// Ahora podemos descargar la anterior.
 	if (activeScene)
 		activeScene->Unload();
 
@@ -116,7 +121,6 @@ bool SceneManager::ApplyPendingScene()
 
 	return true;
 }
-
 Scene* SceneManager::GetActiveScene() noexcept
 {
 	return activeScene.get();

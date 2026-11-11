@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Module.h"
-#include <type_traits>
 
+#include <memory>
+#include <type_traits>
+#include <utility>
 
 class App;
 class Scene;
