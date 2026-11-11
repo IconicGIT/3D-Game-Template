@@ -10,7 +10,7 @@ public:
     explicit RenderSystem(Render& render);
 
     bool Update(
-        Scene& scene,
+        SceneManager& scene,
         float dt
     ) override;
 

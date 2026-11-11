@@ -4,7 +4,7 @@
 #include "Render.h"
 #include "Textures.h"
 #include "Audio.h"
-#include "Scene.h"
+#include "SceneManager.h"
 #include "Camera3D.h"
 
 #include "Defs.h"
@@ -23,7 +23,7 @@ App::App(int argc, char* args[]) : argc(argc), args(args)
 	render = new Render();
 	tex = new Textures();
 	audio = new Audio();
-	scene = new Scene();
+	sceneManager = new SceneManager();
 	camera3D = new Camera3D();
 
 	// Ordered for awake / Start / Update
@@ -33,7 +33,7 @@ App::App(int argc, char* args[]) : argc(argc), args(args)
 	AddModule(tex);
 	AddModule(audio);
 	AddModule(camera3D);
-	AddModule(scene);
+	AddModule(sceneManager);
 
 	// Render last to swap buffer
 	AddModule(render);

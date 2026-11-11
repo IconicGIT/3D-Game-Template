@@ -16,7 +16,7 @@ class System;
 class RenderSystem;
 
 
-class Scene : public Module
+class SceneManager : public Module
 {
 public:
 
@@ -33,10 +33,10 @@ public:
 	GameObject* FindGameObject(GameObjectId id) noexcept;
 
 
-	Scene();
+	SceneManager();
 
 	// Destructor
-	virtual ~Scene();
+	virtual ~SceneManager();
 
 	// Called before render is available
 	bool Awake();

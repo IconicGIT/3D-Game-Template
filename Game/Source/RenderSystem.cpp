@@ -5,7 +5,7 @@
 #include "Model.h"
 #include "ModelRendererComponent.h"
 #include "Render.h"
-#include "Scene.h"
+#include "SceneManager.h"
 #include "TransformComponent.h"
 
 RenderSystem::RenderSystem(Render& renderer)
@@ -14,7 +14,7 @@ RenderSystem::RenderSystem(Render& renderer)
 }
 
 bool RenderSystem::Update(
-    Scene& scene,
+    SceneManager& scene,
     float dt
 )
 {

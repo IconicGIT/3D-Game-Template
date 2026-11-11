@@ -5,7 +5,7 @@
 #include "Render.h"
 #include "Camera3D.h"
 #include "Window.h"
-#include "Scene.h"
+#include "SceneManager.h"
 
 #include "Defs.h"
 #include "Log.h"
@@ -16,19 +16,19 @@
 #include "ModelRendererComponent.h"
 #include "RenderSystem.h"
 
-Scene::Scene() : Module()
+SceneManager::SceneManager() : Module()
 {
 	name.Create("scene");
 }
 
 // Destructor
-Scene::~Scene()
+SceneManager::~SceneManager()
 {}
 
 // Called before render is available
-bool Scene::Awake()
+bool SceneManager::Awake()
 {
-	DEBUG_LOG("Loading Scene");
+	DEBUG_LOG("Loading SceneManager");
 	bool ret = true;
 
 	return ret;
@@ -36,7 +36,7 @@ bool Scene::Awake()
 float a = 0;
 
 // Called before the first frame
-bool Scene::Start()
+bool SceneManager::Start()
 {
 	app->tex->LoadFromPath("Assets/Textures/Baker_house.png");
 
@@ -125,13 +125,13 @@ bool Scene::Start()
 }
 
 // Called each loop iteration
-bool Scene::PreUpdate()
+bool SceneManager::PreUpdate()
 {
 	return true;
 }
 
 // Called each loop iteration
-bool Scene::Update(float dt)
+bool SceneManager::Update(float dt)
 {
 	//Testing
 
@@ -186,7 +186,7 @@ bool Scene::Update(float dt)
 }
 
 // Called each loop iteration
-bool Scene::PostUpdate()
+bool SceneManager::PostUpdate()
 {
 	bool ret = true;
 
@@ -197,7 +197,7 @@ bool Scene::PostUpdate()
 }
 
 // Called before quitting
-bool Scene::CleanUp()
+bool SceneManager::CleanUp()
 {
 	DEBUG_LOG("Freeing scene");
 
@@ -207,7 +207,7 @@ bool Scene::CleanUp()
 	return true;
 }
 
-GameObject& Scene::CreateGameObject(
+GameObject& SceneManager::CreateGameObject(
 	const std::string& name
 )
 {
@@ -228,12 +228,12 @@ GameObject& Scene::CreateGameObject(
 }
 
 const std::vector<std::unique_ptr<GameObject>>&
-Scene::GetGameObjects() const noexcept
+SceneManager::GetGameObjects() const noexcept
 {
 	return gameObjects;
 }
 
-void Scene::DestroyPendingGameObjects()
+void SceneManager::DestroyPendingGameObjects()
 {
 	gameObjects.erase(
 		std::remove_if(
@@ -248,7 +248,7 @@ void Scene::DestroyPendingGameObjects()
 	);
 }
 
-GameObject* Scene::FindGameObject(
+GameObject* SceneManager::FindGameObject(
 	GameObjectId id
 ) noexcept
 {

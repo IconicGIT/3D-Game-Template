@@ -13,7 +13,7 @@ class Input;
 class Render;
 class Textures;
 class Audio;
-class Scene;
+class SceneManager;
 class Camera3D;
 
 class App
@@ -75,7 +75,7 @@ public:
 	Render* render;
 	Textures* tex;
 	Audio* audio;
-	Scene* scene;
+	SceneManager* sceneManager;
 	Camera3D* camera3D;
 
 private:
