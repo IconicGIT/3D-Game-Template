@@ -7,12 +7,13 @@
 #include "ModelRendererComponent.h"
 #include "Render.h"
 #include "RenderSystem.h"
-#include "Shader.h"
-#include "Textures.h"
+#include "ResourceManager.h"
 #include "TransformComponent.h"
 
 #include <cmath>
 #include <memory>
+
+#include "Textures.h"
 
 GameScene::GameScene(App& app)
     : Scene(app)
@@ -23,34 +24,33 @@ bool GameScene::OnLoad()
 {
     App& app = GetApp();
 
-    if (!app.tex->LoadFromPath(
-        "Assets/Textures/Baker_house.png"
-    ))
-    {
+    //Load Model
+    std::shared_ptr<Model> houseModel =
+        GetApp().resources->LoadModel(
+            "Assets/Models/baker_house.fbx"
+        );
+
+    if (!houseModel)
         return false;
+
+    //Load Texture
+    Texture texture_checker;
+
+    app.resources->LoadTexture("Assets/Textures/checker_pattern.png", texture_checker);
+
+    //Load Texture
+    Texture texture_house;
+    
+
+
+    //Apply texture to model
+    if (app.resources->LoadTexture("Assets/Textures/baker_house.png", texture_house))
+    {
+        houseModel->SetBaseAlbedoMapForAllParts(
+            texture_house
+        );
     }
 
-    auto defaultShader =
-        std::make_shared<Shader>(
-            "Assets/Shaders/default.vertex",
-            "Assets/Shaders/default.fragment"
-        );
-
-    if (!defaultShader->IsValid())
-        return false;
-
-    auto houseModel =
-        std::make_shared<Model>(
-            "Assets/Models/baker_house.fbx",
-            &app
-        );
-
-    if (houseModel->GetParts().empty())
-        return false;
-
-    houseModel->SetShaderForAllMaterials(
-        defaultShader
-    );
 
     GameObject& houseA =
         CreateGameObject("Baker house A");
@@ -62,9 +62,21 @@ bool GameScene::OnLoad()
         vec3(0.0f, 0.0f, 5.0f)
     );
 
-    houseA.AddComponent<ModelRendererComponent>(
+
+
+    ModelRendererComponent& houseArenderer = houseA.AddComponent<ModelRendererComponent>(
         houseModel
     );
+
+
+    std::shared_ptr<Material> houseAMaterial = std::make_shared<Material>(*houseModel->GetBaseMaterial(0));
+    houseAMaterial->SetAlbedoMap(texture_checker);
+
+    houseAMaterial->transparent = true;
+    houseAMaterial->depthWrite = false;
+    houseAMaterial->tint = vec4(1, 1, 1, 0.2f);
+
+    houseArenderer.SetMaterialOverrideForAllParts(houseAMaterial);
 
     houseAId = houseA.GetId();
 

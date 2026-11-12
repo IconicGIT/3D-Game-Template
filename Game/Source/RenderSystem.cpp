@@ -85,7 +85,7 @@ bool RenderSystem::Update(
                 );
 
             if (!material)
-                material = part.material;
+                material = part.baseMaterial;
 
             if (!material)
             {

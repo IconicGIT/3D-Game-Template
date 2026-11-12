@@ -15,6 +15,7 @@ class Textures;
 class Audio;
 class SceneManager;
 class Camera3D;
+class ResourceManager;
 
 class App
 {
@@ -70,13 +71,14 @@ private:
 public:
 
 	// Modules
-	Window* win;
-	Input* input;
-	Render* render;
-	Textures* tex;
-	Audio* audio;
-	SceneManager* sceneManager;
-	Camera3D* camera3D;
+	Window* win = nullptr;
+	Input* input = nullptr;
+	Render* render = nullptr;
+	Textures* tex = nullptr;
+	Audio* audio = nullptr;
+	ResourceManager* resources = nullptr;
+	Camera3D* camera3D = nullptr;
+	SceneManager* sceneManager = nullptr;
 
 private:
 

@@ -18,11 +18,14 @@ namespace
     }
 }
 
-Model::Model(const char* path, App* app) 
+Model::Model(const char* path,App* application) : app(application)
 {
-    this->app = app;
+    valid = LoadModel(path);
+}
 
-    LoadModel(path);
+bool Model::IsValid() const noexcept
+{
+    return valid && !parts.empty();
 }
 
 bool Model::Set(const char* path)
@@ -30,13 +33,15 @@ bool Model::Set(const char* path)
     parts.clear();
     directory.clear();
 
-    return LoadModel(path);
+    valid = LoadModel(path);
+    return valid;
 }
 
 void Model::Set(const Model& model)
 {
     parts = model.parts;
     directory = model.directory;
+    valid = model.valid;
 }
 
 void Model::SetShaderForAllMaterials(
@@ -45,10 +50,10 @@ void Model::SetShaderForAllMaterials(
 {
     for (ModelPart& part : parts)
     {
-        if (!part.material)
-            part.material = std::make_shared<Material>();
+        if (!part.baseMaterial)
+            part.baseMaterial = std::make_shared<Material>();
 
-        part.material->SetShader(shader);
+        part.baseMaterial->SetShader(shader);
     }
 }
 
@@ -63,7 +68,7 @@ bool Model::SetMaterial(
     if (!material)
         return false;
 
-    parts[partIndex].material = std::move(material);
+    parts[partIndex].baseMaterial = std::move(material);
     return true;
 }
 
@@ -74,7 +79,35 @@ std::shared_ptr<Material> Model::GetMaterial(
     if (partIndex >= parts.size())
         return nullptr;
 
-    return parts[partIndex].material;
+    return parts[partIndex].baseMaterial;
+}
+
+bool Model::SetBaseMaterial(
+    std::size_t partIndex,
+    std::shared_ptr<Material> material
+)
+{
+    if (partIndex >= parts.size())
+        return false;
+
+    if (!material)
+        return false;
+
+    parts[partIndex].baseMaterial =
+        std::move(material);
+
+    return true;
+}
+
+std::shared_ptr<Material>
+Model::GetBaseMaterial(
+    std::size_t partIndex
+) const
+{
+    if (partIndex >= parts.size())
+        return nullptr;
+
+    return parts[partIndex].baseMaterial;
 }
 
 bool Model::LoadModel(std::string path)
@@ -179,21 +212,6 @@ ModelPart Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
             indices.push_back(face.mIndices[j]);
     }
 
-    //App->ui->AppendToOutput(DEBUG_LOG("Loading Textures..."));
-
-    std::vector<Texture> diffuseMaps;
-
-    if (mesh->mMaterialIndex >= 0)
-    {
-        aiMaterial* importedMaterial =
-            scene->mMaterials[mesh->mMaterialIndex];
-
-        diffuseMaps = LoadMaterialTextures(
-            importedMaterial,
-            aiTextureType_DIFFUSE,
-            "texture_diffuse"
-        );
-    }
 
     ModelPart part;
 
@@ -202,25 +220,17 @@ ModelPart Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         indices
     );
 
-    part.material = std::make_shared<Material>();
+    part.baseMaterial =
+        std::make_shared<Material>();
 
-    if (!diffuseMaps.empty())
+    const Texture* defaultTexture =
+        app->tex->GetDefaultTexture();
+
+    if (defaultTexture != nullptr)
     {
-        part.material->SetAlbedoMap(
-            diffuseMaps.front()
+        part.baseMaterial->SetAlbedoMap(
+            *defaultTexture
         );
-    }
-    else
-    {
-        const Texture* defaultTexture =
-            app->tex->GetDefaultTexture();
-
-        if (defaultTexture != nullptr)
-        {
-            part.material->SetAlbedoMap(
-                *defaultTexture
-            );
-        }
     }
 
     return part;
@@ -311,3 +321,46 @@ std::vector<Texture> Model::LoadMaterialTextures(
 
     return loadedTextures;
 }
+
+
+bool Model::SetBaseAlbedoMap(
+    std::size_t partIndex,
+    const Texture& texture
+)
+{
+    if (partIndex >= parts.size())
+        return false;
+
+    ModelPart& part = parts[partIndex];
+
+    if (!part.baseMaterial)
+    {
+        part.baseMaterial =
+            std::make_shared<Material>();
+    }
+
+    part.baseMaterial->SetAlbedoMap(
+        texture
+    );
+
+    return true;
+}
+
+void Model::SetBaseAlbedoMapForAllParts(
+    const Texture& texture
+)
+{
+    for (ModelPart& part : parts)
+    {
+        if (!part.baseMaterial)
+        {
+            part.baseMaterial =
+                std::make_shared<Material>();
+        }
+
+        part.baseMaterial->SetAlbedoMap(
+            texture
+        );
+    }
+}
+

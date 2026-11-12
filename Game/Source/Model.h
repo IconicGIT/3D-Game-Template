@@ -19,7 +19,7 @@
 struct ModelPart
 {
     std::shared_ptr<Mesh> mesh;
-    std::shared_ptr<Material> material;
+    std::shared_ptr<Material> baseMaterial;
 };
 
 class Model
@@ -27,6 +27,8 @@ class Model
 public:
     Model(const char* path, App* app);
     
+    bool IsValid() const noexcept;
+
 
     bool Set(const char* path);
     void Set(const Model& model);
@@ -48,7 +50,28 @@ public:
     bool SetMaterial(std::size_t partIndex, std::shared_ptr<Material> material);
     std::shared_ptr<Material> GetMaterial(std::size_t partIndex) const;
 
+    bool SetBaseMaterial(
+        std::size_t partIndex,
+        std::shared_ptr<Material> material
+    );
+
+    std::shared_ptr<Material> GetBaseMaterial(
+        std::size_t partIndex
+    ) const;
+
+    bool SetBaseAlbedoMap(
+        std::size_t partIndex,
+        const Texture& texture
+    );
+
+    void SetBaseAlbedoMapForAllParts(
+        const Texture& texture
+    );
+
 private:
+    
+    bool valid = false;
+
     App* app;
 
     // model data

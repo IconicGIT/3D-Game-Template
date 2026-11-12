@@ -6,6 +6,7 @@
 #include "Audio.h"
 #include "SceneManager.h"
 #include "Camera3D.h"
+#include "ResourceManager.h"
 
 #include "Defs.h"
 #include "Log.h"
@@ -23,8 +24,9 @@ App::App(int argc, char* args[]) : argc(argc), args(args)
 	render = new Render();
 	tex = new Textures();
 	audio = new Audio();
-	sceneManager = new SceneManager(*this);
+	resources = new ResourceManager(*this);
 	camera3D = new Camera3D();
+	sceneManager = new SceneManager(*this);
 
 	// Ordered for awake / Start / Update
 	// Reverse order of CleanUp
@@ -32,6 +34,8 @@ App::App(int argc, char* args[]) : argc(argc), args(args)
 	AddModule(input);
 	AddModule(tex);
 	AddModule(audio);
+
+	AddModule(resources);
 	AddModule(camera3D);
 	AddModule(sceneManager);
 

@@ -5,6 +5,7 @@
 #include "Log.h"
 
 #include "GameScene.h"
+#include "IntroScene.h"
 #include "Scene.h"
 
 #include <memory>
@@ -34,7 +35,7 @@ bool SceneManager::Awake(
 bool SceneManager::Start()
 {
 	pendingScene =
-		std::make_unique<GameScene>(app);
+		std::make_unique<IntroScene>(app);
 
 	return ApplyPendingScene();
 }

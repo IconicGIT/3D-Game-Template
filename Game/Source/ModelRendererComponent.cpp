@@ -77,3 +77,25 @@ void ModelRendererComponent::SetVisible(
 {
     visible = value;
 }
+
+bool ModelRendererComponent::
+SetMaterialOverrideForAllParts(
+    std::shared_ptr<Material> material
+)
+{
+    if (!model || !material)
+        return false;
+
+    materialOverrides.assign(
+        model->GetParts().size(),
+        std::move(material)
+    );
+
+    return true;
+}
+
+void ModelRendererComponent::
+ClearMaterialOverrideForAllParts()
+{
+    materialOverrides.clear();
+}

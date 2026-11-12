@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+#include <functional>
 
 class Material;
 class Model;
@@ -41,6 +42,13 @@ public:
 
     bool IsVisible() const noexcept;
     void SetVisible(bool value) noexcept;
+
+
+    bool SetMaterialOverrideForAllParts(
+        std::shared_ptr<Material> material
+    );
+
+    void ClearMaterialOverrideForAllParts();
 
 private:
     std::shared_ptr<Model> model;
